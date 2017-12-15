@@ -1,0 +1,203 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[RequireComponent(typeof(Rigidbody2D))]
+public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
+		#region Properties
+		public Vector2 Velocity {
+			get{
+				return rigidbody2D.velocity;
+			}
+			set{
+				rigidbody2D.velocity = value;
+			}
+		}
+		public float UpdateTime{
+			get{
+				return Time.fixedDeltaTime;
+			}
+		}
+		public Vector2 Position{
+			get{
+				return rigidbody2D.position;
+			}
+			set{
+				rigidbody2D.position = value;
+			}
+		}
+		
+	#endregion
+	#region Inspector
+		[Header("Force")]
+		public float yGravityForce = 1;
+		public float yUpForceInGround = 1;
+		[Header("Speed")]
+		public float yMaxSpeed = 5;
+		public float yMaxSpeedInGroundUp = 2;
+		public float yMaxSpeedInGroundDown = 2;
+		public float yDigJumpSpeed = 2;
+		[Header("Layer Mask")]
+		public LayerMask onGroundLayer;
+		public LayerMask backtrackLayer;
+		public LayerMask bottomLayer;
+		[Header("Other")]
+		public float backtrackWidth = 0.1f;
+		public Vector2 readOnlyVelocity;
+		public new Rigidbody2D rigidbody2D;
+		public BoxRayCaster boxRayCaster;
+		public GopherController controller;
+	#endregion
+	
+	#region Monobehaviour Methods
+		protected override void FixedUpdateAfterFSMUpdate() {
+			
+		}
+		void Awake()
+		{
+			ChangeState(InAirStateWithEvent.Instance);
+		}
+		void Update()
+		{
+			readOnlyVelocity = Velocity;
+		}
+		void Start () {
+
+		}
+		void OnDestroy() {
+			if(destroyAction != null) {
+				destroyAction();
+			}
+		}
+	#endregion
+	#region Private Methods And Fields
+		event System.Action destroyAction;
+		private void AddEnterAction(BoxRayCaster.RayTrigger trigger, System.Action<RaycastHit2D> action) {
+			trigger.enterAction += action;
+			destroyAction += ()=>{
+				trigger.enterAction -= action;
+			};
+		}
+		private void AddExitAction(BoxRayCaster.RayTrigger trigger, System.Action<Collider2D> action) {
+			trigger.exitAction += action;
+			destroyAction += ()=>{
+				trigger.exitAction -= action;
+			};
+		}
+		
+		private void ProcessCollisionBacktrack(BoxRayCaster.RayTrigger trigger) {
+			if(trigger.CheckCollision(backtrackLayer)) {
+				Backtrack(trigger);
+			}
+		}
+		private void Backtrack(BoxRayCaster.RayTrigger trigger) {
+			Vector2 rayDirection = trigger.RayDirection; 
+			BoxCollider2D box = boxRayCaster.boxCollider2D;
+			Vector2 nowWorldCenter = transform.TransformPoint(box.offset);
+			Vector2 rayAbsDirection = new Vector2(Mathf.Abs(rayDirection.x), Mathf.Abs(rayDirection.y));
+			Vector2 lastWorldCenter = nowWorldCenter - Vector2.Scale(Velocity, rayAbsDirection) * UpdateTime;
+			float step = trigger.RayStep;
+			float length = 100;
+			ThreeRayCast threeRayCast = new ThreeRayCast(lastWorldCenter, rayDirection, step, length, backtrackLayer);
+			RaycastHit2D? result = threeRayCast.GetNearest();
+			Debug.Assert(result.HasValue);
+			Vector2 hitPoint = result.Value.point;
+			float deltaValue = trigger.GetWorldDirectionValue(lastWorldCenter, hitPoint);
+			//deltaValue += backtrackWidth;
+			if(trigger.GetNeedVector2Value(Velocity) != 0) {
+				Vector2 nextWorldCenter = lastWorldCenter + deltaValue / trigger.GetNeedVector2Value(Velocity) * Velocity;
+				Position += nextWorldCenter - nowWorldCenter;
+				if(rayDirection.x == 0) {
+					Velocity = new Vector2(Velocity.x, 0);
+				}
+				else {
+					Velocity = new Vector2(0, Velocity.y);
+				}
+			}
+
+		}
+	#endregion	
+	
+	#region State
+	
+    public class OnGroundStateWithEvent : StateWithEvent<OnGroundStateWithEvent>
+    {
+        public override void OnEnterWithEvent(MovementFsm fsm)
+        {
+        }
+        public override void OnExcuteWithEvent(MovementFsm fsm)
+        {
+			
+			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
+			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
+			if(!fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
+				fsm.ChangeState(InAirStateWithEvent.Instance);
+				return;
+			}
+			
+		}
+        public override void OnExitWithEvent(MovementFsm fsm)
+        {
+        }
+		public override string GetStateName() {
+			return "OnGround";
+		}
+    }
+	public class InAirStateWithEvent : StateWithEvent<InAirStateWithEvent> 
+	{
+        public override void OnEnterWithEvent(MovementFsm fsm)
+        {
+        }
+
+        public override void OnExcuteWithEvent(MovementFsm fsm)
+        {
+			fsm.Velocity = fsm.Velocity + Vector2.down * fsm.yGravityForce * fsm.UpdateTime;
+			if(Mathf.Abs(fsm.Velocity.y) > fsm.yMaxSpeed) {
+				fsm.Velocity = new Vector2(fsm.Velocity.x, Mathf.Sign(fsm.Velocity.y) * fsm.yMaxSpeed);
+			}
+			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
+			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
+			if(fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
+				fsm.ChangeState(OnGroundStateWithEvent.Instance);
+				fsm.Backtrack(fsm.boxRayCaster.Down);
+			}
+			
+			
+        }
+
+        public override void OnExitWithEvent(MovementFsm fsm)
+        {
+        }
+		public override string GetStateName() {
+			return "InAir";
+		}
+    }
+	public class InGroundStateWithEvent : StateWithEvent<InGroundStateWithEvent>
+	{
+		public override void OnEnterWithEvent(MovementFsm fsm) {
+		}
+		public override void OnExcuteWithEvent(MovementFsm fsm) {
+			float velocityY = fsm.Velocity.y;
+			velocityY +=  fsm.yUpForceInGround * fsm.UpdateTime;
+			velocityY = Mathf.Clamp(velocityY, -fsm.yMaxSpeedInGroundDown, fsm.yMaxSpeedInGroundUp);
+			fsm.Velocity = new Vector2(fsm.Velocity.x, velocityY);
+			
+			if(!fsm.boxRayCaster.CheckCollision(fsm.onGroundLayer)) {
+				fsm.Velocity = new Vector2(fsm.Velocity.x, fsm.yDigJumpSpeed);
+				fsm.ChangeState(InAirStateWithEvent.Instance);
+			}
+		}
+		public override void OnExitWithEvent(MovementFsm fsm) {
+		}
+		public override string GetStateName() {
+			return "InGround";
+		}
+	}
+	public class OutGroundStateWithEvent : StateWithEvent<OutGroundStateWithEvent> 
+	{
+		public override string GetStateName() {
+			return "OutGround";
+		}
+	}
+    #endregion
+}
