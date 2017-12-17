@@ -26,12 +26,34 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 				rigidbody2D.position = value;
 			}
 		}
-		
-	#endregion
-	#region Inspector
-		[Header("Force")]
+
+		public Vector2 VelocityBeforeBacktrack
+		{
+			get
+			{
+				return velocityBeforeBacktrack;
+			}
+		}
+
+    public List<BoxRayCaster.RayTrigger> DieTriggers
+    {
+        get
+        {
+            return dieTriggers;
+        }
+
+        set
+        {
+            dieTriggers = value;
+        }
+    }
+
+    #endregion
+    #region Inspector
+    [Header("Force")]
 		public float yGravityForce = 1;
 		public float yUpForceInGround = 1;
+		public float yDieGravityForce = 20;
 		[Header("Speed")]
 		public float yMaxSpeed = 5;
 		public float yMaxSpeedInGroundUp = 2;
@@ -71,6 +93,8 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 		}
 	#endregion
 	#region Private Methods And Fields
+		private Vector2 velocityBeforeBacktrack;
+		private List<BoxRayCaster.RayTrigger> dieTriggers;
 		event System.Action destroyAction;
 		private void AddEnterAction(BoxRayCaster.RayTrigger trigger, System.Action<RaycastHit2D> action) {
 			trigger.enterAction += action;
@@ -87,6 +111,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 		
 		private void ProcessCollisionBacktrack(BoxRayCaster.RayTrigger trigger) {
 			if(trigger.CheckCollision(backtrackLayer)) {
+				velocityBeforeBacktrack = Velocity;
 				Backtrack(trigger);
 			}
 		}
@@ -128,8 +153,8 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
         public override void OnExcuteWithEvent(MovementFsm fsm)
         {
 			
-			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
-			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
+			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
+			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
 			if(!fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
 				fsm.ChangeState(InAirStateWithEvent.Instance);
 				return;
@@ -155,8 +180,8 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			if(Mathf.Abs(fsm.Velocity.y) > fsm.yMaxSpeed) {
 				fsm.Velocity = new Vector2(fsm.Velocity.x, Mathf.Sign(fsm.Velocity.y) * fsm.yMaxSpeed);
 			}
-			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
-			fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
+			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
+			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
 			if(fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
 				fsm.ChangeState(OnGroundStateWithEvent.Instance);
 				fsm.Backtrack(fsm.boxRayCaster.Down);
@@ -182,7 +207,8 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			velocityY = Mathf.Clamp(velocityY, -fsm.yMaxSpeedInGroundDown, fsm.yMaxSpeedInGroundUp);
 			fsm.Velocity = new Vector2(fsm.Velocity.x, velocityY);
 			
-			if(!fsm.boxRayCaster.CheckCollision(fsm.onGroundLayer)) {
+			 var result = new List<BoxRayCaster.RayTrigger>(fsm.boxRayCaster.CheckCollision(fsm.onGroundLayer));
+			if(result.Count == 0) {
 				fsm.Velocity = new Vector2(fsm.Velocity.x, fsm.yDigJumpSpeed);
 				fsm.ChangeState(InAirStateWithEvent.Instance);
 			}
@@ -193,10 +219,29 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			return "InGround";
 		}
 	}
-	public class OutGroundStateWithEvent : StateWithEvent<OutGroundStateWithEvent> 
+    public class DeadStateWithEvent : StateWithEvent<DeadStateWithEvent>
+    {
+
+		public override void OnEnterWithEvent(MovementFsm fsm) {
+			List<BoxRayCaster.RayTrigger> dieTriggers = fsm.DieTriggers;
+			Vector2 originVelocity = fsm.Velocity;
+			foreach(var trigger in dieTriggers) {
+				originVelocity = Vector2.Reflect(originVelocity,trigger.RayDirection);
+			}
+			fsm.Velocity = originVelocity;
+		}
+		public override void OnExcuteWithEvent(MovementFsm fsm) {
+			fsm.Velocity += Vector2.down * fsm.yDieGravityForce * fsm.UpdateTime;
+		}
+        public override string GetStateName()
+        {
+			return "Dead";
+        }
+    }
+	public class FrozenStateWithEvent : StateWithEvent<FrozenStateWithEvent> 
 	{
 		public override string GetStateName() {
-			return "OutGround";
+			return "Frozen";
 		}
 	}
     #endregion

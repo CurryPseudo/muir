@@ -33,8 +33,11 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		}
 	#endregion
 	#region Private Methods
-		private void HitGroundAndDie() {
-			SceneManager.LoadScene(0);
+		private void HitGroundAndDie(List<BoxRayCaster.RayTrigger> hitTrigger) {
+			if(hitTrigger.Count == 0) return;
+			movementFsm.DieTriggers = hitTrigger;
+			movementFsm.ChangeState(MovementFsm.DeadStateWithEvent.Instance);
+			ChangeState(DeadState.Instance);
 		}
 		private void ChangeStateToNormal(){
 			ChangeState(NormalState.Instance);
@@ -49,8 +52,9 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		}
 
 		public override void OnExcute(GopherController fsm) {
-			if(fsm.onGroundBoxRayCaster.CheckCollision(fsm.deadLayers)) {
-				fsm.HitGroundAndDie();
+			var result = new List<BoxRayCaster.RayTrigger>(fsm.onGroundBoxRayCaster.CheckCollision(fsm.deadLayers));
+			if(result.Count != 0) {
+				fsm.HitGroundAndDie(result);
 				return;
 			}
 			if(fsm.movementFsm.current.ToString() == "OnGround") {
@@ -85,14 +89,16 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.AddEnterEvent(fsm.movementFsm, fsm.ChangeStateToNormal);
 		}
 		public override void OnExcute(GopherController fsm) {
-			if(fsm.diggingBoxRayCaster.CheckCollision(fsm.deadLayers)) {
-				fsm.HitGroundAndDie();
+			List<BoxRayCaster.RayTrigger> result = new List<BoxRayCaster.RayTrigger>(fsm.diggingBoxRayCaster.CheckCollision(fsm.deadLayers)); 
+			if(result.Count != 0) {
+				fsm.HitGroundAndDie(result);
 				return;
 			}
 			if(Input.GetMouseButton(0)) {
 				fsm.movementFsm.Velocity = fsm.movementFsm.Velocity + Vector2.down * fsm.yDiggingForce * fsm.movementFsm.UpdateTime;
 			}
-			if(fsm.onGroundBoxRayCaster.CheckCollision(fsm.bottomLayers) && fsm.movementFsm.Velocity.y < 0) {
+			var bottomResult = new List<BoxRayCaster.RayTrigger>(fsm.onGroundBoxRayCaster.CheckCollision(fsm.bottomLayers));
+			if(bottomResult.Count != 0 && fsm.movementFsm.Velocity.y < 0) {
 				fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, 0);
 			}
 			Vector2 direction = fsm.movementFsm.Velocity.normalized;
@@ -107,6 +113,11 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		}
 		public override string GetStateName() {
 			return "Digging";
+		}
+	}
+	public class DeadState : State<DeadState> {
+		public override string GetStateName() {
+			return "Dead";
 		}
 	}
     #endregion

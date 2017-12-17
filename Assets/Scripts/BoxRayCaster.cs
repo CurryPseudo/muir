@@ -156,6 +156,10 @@ public class BoxRayCaster : MonoBehaviour {
 				}
 				return false;
 			}
+			public IEnumerable<RaycastHit2D> GetHits(LayerMask layers) {
+				SetRayValue();
+				return threeRayCast.DoRayCast();
+			}
 		}
 	#endregion
 
@@ -210,20 +214,21 @@ public class BoxRayCaster : MonoBehaviour {
 		
 	#endregion
 	#region Public Methods
-	public bool CheckCollision(LayerMask mask) {
+	public IEnumerable<RayTrigger> CheckCollision(LayerMask mask) {
+
 		if(Up.CheckCollision(mask)) {
-			return true;
+			yield return Up;
 		}
 		if(Down.CheckCollision(mask)) {
-			return true;
+			yield return Down;
 		}
 		if(Left.CheckCollision(mask)) {
-			return true;
+			yield return Left;
 		}
 		if(Right.CheckCollision(mask)) {
-			return true;
+			yield return Right;
 		}
-		return false;
+		yield break;
 	}
 	#endregion
 	#region MonoBehaviour Methods

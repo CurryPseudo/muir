@@ -5,6 +5,7 @@ using UnityEngine;
 public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : FiniteStateMachineMonobehaviour<T>{ 
 
 	public string currentStateName;
+	public string lastStateName;
 	public Stateble current;
 	public interface Stateble{
 		void OnEnter(T fsm);
@@ -61,7 +62,6 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 	{
 		FixedUpdateBeforeFSMUpdate();
 		if(current != null){
-			currentStateName = current.ToString();
 			current.OnExcute(this as T);
 			
 		}
@@ -71,9 +71,11 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 	protected virtual void FixedUpdateAfterFSMUpdate() {}
 	public void ChangeState(Stateble newState){
 		if(current != null){
+			lastStateName = current.ToString();
 			current.OnExit(this as T);
 		}
 		current = newState;
 		current.OnEnter(this as T);
+		currentStateName = current.ToString();
 	}
 }
