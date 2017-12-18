@@ -39,6 +39,10 @@ public class GopherViewController : MonoBehaviourHasDestroyEvent {
 			MovementFsm.DeadStateWithEvent.Instance.enterEventMap.AddEnterEvent(movementFsm, () => {
 				view.SetTrigger("Die");
 			}, this);
+			MovementFsm.DeadStateWithEvent.Instance.enterEventMap.AddEnterEvent(movementFsm, () => {
+				ghostView.gameObject.transform.parent.SetParent(null, true);
+				ghostView.SetTrigger("Die");
+			}, this);
 			MovementFsm.DeadStateWithEvent.Instance.excuteEventMap.AddEnterEvent(movementFsm, () => {
 				if(movementFsm.Velocity.x > 0) {
 					Vector3 scale = view.transform.localScale;
@@ -46,6 +50,7 @@ public class GopherViewController : MonoBehaviourHasDestroyEvent {
 					view.transform.localScale = scale;
 				}
 			}, this);
+			
         }
 		void Update() {
 			view.SetFloat("ySpeed", movementFsm.Velocity.y);
