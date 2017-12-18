@@ -82,8 +82,8 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 					mouseDownTime += Time.fixedDeltaTime;
 				}
 				if(mouseDownTime > fsm.holdMouseTime) {
-					fsm.movementFsm.ChangeState(MovementFsm.InGroundStateWithEvent.Instance);
 					fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, -fsm.movementFsm.yMaxSpeedInGroundDown);
+					fsm.movementFsm.ChangeState(MovementFsm.InGroundStateWithEvent.Instance);
 					fsm.ChangeState(DiggingState.Instance);
 					mouseDownTime = 0;
 					return;

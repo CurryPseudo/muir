@@ -26,7 +26,6 @@ public class SequenceSpriteSetter : MonoBehaviour {
                     //transform.localScale = targetScale;
                 }
                 if(puterPoint != null && changeSize) {
-                    Debug.Log("oops");
                     float nowDistance = originDistance * (float)targetSprite.textureRect.width / targetWidth;
                     puterPoint.startPoint = new Vector2(originCenter.x - nowDistance / 2, puterPoint.startPoint.y);
                     puterPoint.endPoint = new Vector2(originCenter.x + nowDistance / 2, puterPoint.endPoint.y);

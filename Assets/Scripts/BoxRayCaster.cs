@@ -68,10 +68,9 @@ public class BoxRayCaster : MonoBehaviour {
 			}
 			public void Update() {
 				
-				lastRayCenter = rayCenter;
 				SetRayValue();
 				HashSet<Collider2D> newCollidersIn = new HashSet<Collider2D>();
-				foreach(var hit in threeRayCast.DoRayCast()) {
+				foreach(var hit in threeRayCast.DoNormalRayCast()) {
 					newCollidersIn.Add(hit.collider);
 					if(!collidersIn.Contains(hit.collider)) {
 						EnterAction(hit);
@@ -160,14 +159,21 @@ public class BoxRayCaster : MonoBehaviour {
 			}
 			public IEnumerable<RaycastHit2D> GetHits(LayerMask layers) {
 				SetRayValue();
-				foreach(var hit in threeRayCast.DoRayCast()) {
-					if(LayerMaskUtil.IsIncluded(layers, hit.collider.gameObject.layer)) {
+				return GetHits(layers, threeRayCast.DoNormalRayCast());
+			}
+			private IEnumerable<RaycastHit2D> GetHits(LayerMask layerMask, IEnumerable<RaycastHit2D> hits) {
+				foreach(var hit in hits) {
+					if(LayerMaskUtil.IsIncluded(layerMask, hit.collider.gameObject.layer)) {
 						yield return hit;
 					}
 				}
 				yield break;
 			}
-
+			public IEnumerable<RaycastHit2D> GetEdgeHits(LayerMask layers) {
+				lastRayCenter = rayCenter;
+				SetRayValue();
+				return GetHits(layers, threeRayCast.DoRayCastEdge(lastRayCenter));
+			}
 		}
 	#endregion
 
@@ -222,6 +228,22 @@ public class BoxRayCaster : MonoBehaviour {
 		
 	#endregion
 	#region Public Methods
+	public IEnumerable<RaycastHit2D> CheckCollisionEdgeHit(LayerMask mask) {
+		foreach(var hit in Up.GetEdgeHits(mask)) {
+			yield return hit;
+		}
+		foreach(var hit in Down.GetEdgeHits(mask)) {
+			yield return hit;
+		}
+		foreach(var hit in Left.GetEdgeHits(mask)) {
+			yield return hit;
+		}
+		foreach(var hit in Right.GetHits(mask)) {
+			yield return hit;
+		}
+		yield break;
+
+	}
 	public IEnumerable<RaycastHit2D> CheckCollisionHit(LayerMask mask) {
 		foreach(var hit in Up.GetHits(mask)) {
 			yield return hit;

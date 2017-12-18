@@ -204,12 +204,14 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 		}
 		public override void OnExcuteWithEvent(MovementFsm fsm) {
 			float velocityY = fsm.Velocity.y;
-			velocityY +=  fsm.yUpForceInGround * fsm.UpdateTime;
+			velocityY += fsm.yUpForceInGround * fsm.UpdateTime;
 			velocityY = Mathf.Clamp(velocityY, -fsm.yMaxSpeedInGroundDown, fsm.yMaxSpeedInGroundUp);
 			fsm.Velocity = new Vector2(fsm.Velocity.x, velocityY);
-			
-			 var result = new List<BoxRayCaster.RayTrigger>(fsm.boxRayCaster.CheckCollision(fsm.onGroundLayer));
-			if(result.Count == 0) {
+			if(!fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
+			//var result = new List<BoxRayCaster.RayTrigger>(fsm.boxRayCaster.CheckCollision(fsm.onGroundLayer));
+			//if(result.Count == 0) {
+				//Debug.Log(fsm.boxRayCaster.Down.CollisionStatus);
+				//Debug.Break();
 				fsm.Velocity = new Vector2(fsm.Velocity.x, fsm.yDigJumpSpeed);
 				fsm.ChangeState(InAirStateWithEvent.Instance);
 			}
@@ -226,9 +228,11 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 		public override void OnEnterWithEvent(MovementFsm fsm) {
 			var dieHits = fsm.dieHits;
 			Vector2 originVelocity = fsm.Velocity;
+			Vector2 averageNormal = Vector2.zero;
 			foreach(var dieHit in dieHits) {
-				originVelocity = Vector2.Reflect(originVelocity,dieHit.normal);
+				averageNormal += dieHit.normal.normalized;
 			}
+			originVelocity = Vector2.Reflect(originVelocity,averageNormal.normalized);
 			fsm.Velocity = originVelocity;
 		}
 		public override void OnExcuteWithEvent(MovementFsm fsm) {
