@@ -22,6 +22,10 @@ public class PuterPoint : MonoBehaviour {
 			endPoint = transform.InverseTransformPoint(value);
 		}
 	}
+	public event System.Action changePoint;
+	public void AjustPoint() {
+		changePoint?.Invoke();
+	}
 	// Use this for initialization
 	void Start () {
 		

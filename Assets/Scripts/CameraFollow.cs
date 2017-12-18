@@ -4,13 +4,19 @@ using UnityEngine;
 
 [ExecuteInEditMode]
 public class CameraFollow : MonoBehaviour {
+	#region private fields
+		private Vector3 cameraPosition;
+	#endregion
 	#region Inspector
 		public bool lockX;
 		public bool lockY;
 		public bool lockZ;
+		public delegate Vector3 cameraPositionEffect(Vector3 originPos);
+		public event cameraPositionEffect effect;
 	#endregion
 	// Use this for initialization
 	void Start () {
+		cameraPosition = Camera.main.transform.position;
 	}
 	
 	/// <summary>
@@ -23,13 +29,18 @@ public class CameraFollow : MonoBehaviour {
 	void Update () {
 		Vector3 newPosition = transform.position;
 		if(!lockX) {
-			newPosition.x = Camera.main.transform.position.x;
+			newPosition.x = cameraPosition.x;
 		}
 		if(!lockY) {
-			newPosition.y = Camera.main.transform.position.y;
+			newPosition.y = cameraPosition.y;
 		}
 		if(!lockZ) {
-		newPosition.z = Camera.main.transform.position.z;
+			newPosition.z = cameraPosition.z;
+		}
+		cameraPosition = newPosition;
+		Vector3? afterPosition = effect?.Invoke(newPosition);
+		if(afterPosition.HasValue) {
+			newPosition = afterPosition.Value;
 		}
 		Camera.main.gameObject.transform.position = newPosition; 
 	}

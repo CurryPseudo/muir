@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class GopherController : FiniteStateMachineMonobehaviour<GopherController>{
 
+	#region private fields
+	#endregion
 	#region Inspector
 	[Header("Force")]
 	public float yDiggingForce = 1;
@@ -33,15 +35,35 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		}
 	#endregion
 	#region Private Methods
+		/* 
 		private void HitGroundAndDie(List<BoxRayCaster.RayTrigger> hitTrigger) {
 			if(hitTrigger.Count == 0) return;
 			movementFsm.DieTriggers = hitTrigger;
 			movementFsm.ChangeState(MovementFsm.DeadStateWithEvent.Instance);
+			Timer.BeginATimer(2, () => {SceneManager.LoadScene(0);}, this);
 			ChangeState(DeadState.Instance);
+		}
+		*/
+		private bool HitGroundAndDie(IEnumerable<RaycastHit2D> hits) {
+			bool hasHit = false;
+			foreach(var hit in hits) {
+				hasHit = true;
+				break;
+			}
+			if(!hasHit) {
+				return false;
+			}
+			movementFsm.DieHits = new List<RaycastHit2D>(hits);
+			movementFsm.ChangeState(MovementFsm.DeadStateWithEvent.Instance);
+			Timer.BeginATimer(2, () => {SceneManager.LoadScene(0);}, this);
+			ChangeState(DeadState.Instance);
+			return true;
 		}
 		private void ChangeStateToNormal(){
 			ChangeState(NormalState.Instance);
 		}
+		
+
 	#endregion
     #region States
     public class NormalState : State<NormalState>
@@ -52,9 +74,7 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		}
 
 		public override void OnExcute(GopherController fsm) {
-			var result = new List<BoxRayCaster.RayTrigger>(fsm.onGroundBoxRayCaster.CheckCollision(fsm.deadLayers));
-			if(result.Count != 0) {
-				fsm.HitGroundAndDie(result);
+			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
 				return;
 			}
 			if(fsm.movementFsm.current.ToString() == "OnGround") {
@@ -89,9 +109,7 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.AddEnterEvent(fsm.movementFsm, fsm.ChangeStateToNormal);
 		}
 		public override void OnExcute(GopherController fsm) {
-			List<BoxRayCaster.RayTrigger> result = new List<BoxRayCaster.RayTrigger>(fsm.diggingBoxRayCaster.CheckCollision(fsm.deadLayers)); 
-			if(result.Count != 0) {
-				fsm.HitGroundAndDie(result);
+			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
 				return;
 			}
 			if(Input.GetMouseButton(0)) {

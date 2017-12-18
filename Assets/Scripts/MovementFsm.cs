@@ -35,18 +35,19 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			}
 		}
 
-    public List<BoxRayCaster.RayTrigger> DieTriggers
+    public List<RaycastHit2D> DieHits
     {
         get
         {
-            return dieTriggers;
+            return dieHits;
         }
 
         set
         {
-            dieTriggers = value;
+            dieHits = value;
         }
     }
+
 
     #endregion
     #region Inspector
@@ -94,7 +95,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 	#endregion
 	#region Private Methods And Fields
 		private Vector2 velocityBeforeBacktrack;
-		private List<BoxRayCaster.RayTrigger> dieTriggers;
+		private List<RaycastHit2D> dieHits;
 		event System.Action destroyAction;
 		private void AddEnterAction(BoxRayCaster.RayTrigger trigger, System.Action<RaycastHit2D> action) {
 			trigger.enterAction += action;
@@ -223,10 +224,10 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
     {
 
 		public override void OnEnterWithEvent(MovementFsm fsm) {
-			List<BoxRayCaster.RayTrigger> dieTriggers = fsm.DieTriggers;
+			var dieHits = fsm.dieHits;
 			Vector2 originVelocity = fsm.Velocity;
-			foreach(var trigger in dieTriggers) {
-				originVelocity = Vector2.Reflect(originVelocity,trigger.RayDirection);
+			foreach(var dieHit in dieHits) {
+				originVelocity = Vector2.Reflect(originVelocity,dieHit.normal);
 			}
 			fsm.Velocity = originVelocity;
 		}

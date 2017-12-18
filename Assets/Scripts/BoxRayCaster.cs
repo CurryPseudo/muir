@@ -16,6 +16,7 @@ public class BoxRayCaster : MonoBehaviour {
 			Direction _direction;
 			HashSet<Collider2D> collidersIn = new HashSet<Collider2D>();
 			ThreeRayCast threeRayCast;
+			Vector2 lastRayCenter;
 			public System.Action<RaycastHit2D> enterAction;
 			public System.Action<Collider2D> exitAction;
 			public string CollisionStatus {
@@ -67,6 +68,7 @@ public class BoxRayCaster : MonoBehaviour {
 			}
 			public void Update() {
 				
+				lastRayCenter = rayCenter;
 				SetRayValue();
 				HashSet<Collider2D> newCollidersIn = new HashSet<Collider2D>();
 				foreach(var hit in threeRayCast.DoRayCast()) {
@@ -158,8 +160,14 @@ public class BoxRayCaster : MonoBehaviour {
 			}
 			public IEnumerable<RaycastHit2D> GetHits(LayerMask layers) {
 				SetRayValue();
-				return threeRayCast.DoRayCast();
+				foreach(var hit in threeRayCast.DoRayCast()) {
+					if(LayerMaskUtil.IsIncluded(layers, hit.collider.gameObject.layer)) {
+						yield return hit;
+					}
+				}
+				yield break;
 			}
+
 		}
 	#endregion
 
@@ -214,6 +222,22 @@ public class BoxRayCaster : MonoBehaviour {
 		
 	#endregion
 	#region Public Methods
+	public IEnumerable<RaycastHit2D> CheckCollisionHit(LayerMask mask) {
+		foreach(var hit in Up.GetHits(mask)) {
+			yield return hit;
+		}
+		foreach(var hit in Down.GetHits(mask)) {
+			yield return hit;
+		}
+		foreach(var hit in Left.GetHits(mask)) {
+			yield return hit;
+		}
+		foreach(var hit in Right.GetHits(mask)) {
+			yield return hit;
+		}
+		yield break;
+
+	}
 	public IEnumerable<RayTrigger> CheckCollision(LayerMask mask) {
 
 		if(Up.CheckCollision(mask)) {

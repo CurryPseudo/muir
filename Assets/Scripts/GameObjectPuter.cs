@@ -40,12 +40,13 @@ public class GameObjectPuter : MonoBehaviour {
 		float distance = (points.StartPoint - transform.position).magnitude;
 		while(distance < tooCloseCreateDistance) {
 			GameObject prefab = putPrefabs[(int)Random.Range(0, putPrefabs.Count)];
-			Vector3 position = points.EndPoint - prefab.transform.TransformVector(prefab.GetComponent<PuterPoint>().startPoint);
-			GameObject newGround = Instantiate(prefab, position, Quaternion.identity);
-			newGround.transform.SetParent(putTransformParent, true);
+			GameObject newGround = Instantiate(prefab);
 			if(sequenceSprites != null) {
 				newGround.GetComponent<SequenceSpriteSetter>().SequenceSpritesWithIndex = sequenceSprites;
 			}
+			Vector3 position = points.EndPoint - newGround.transform.TransformVector(newGround.GetComponent<PuterPoint>().startPoint);
+			newGround.transform.position = position;
+			newGround.transform.SetParent(putTransformParent, true);
 			nowInstances.Add(newGround);
 			newestInstance = newGround;
 			points = newestInstance.GetComponent<PuterPoint>();
