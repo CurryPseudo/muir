@@ -29,7 +29,7 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		void Start () {
 		}
 		protected override void FixedUpdateAfterFSMUpdate() {
-			HintText.Now.Text = movementFsm.current.ToString();
+			
 		}
 		void OnDestroy() {
 		}

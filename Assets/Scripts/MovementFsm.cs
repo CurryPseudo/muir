@@ -76,9 +76,9 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 		protected override void FixedUpdateAfterFSMUpdate() {
 			
 		}
-		void Awake()
+		void Awake()	
 		{
-			ChangeState(InAirStateWithEvent.Instance);
+			ChangeState(OnGroundStateWithEvent.Instance);
 		}
 		void Update()
 		{
@@ -131,7 +131,8 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			float deltaValue = trigger.GetWorldDirectionValue(lastWorldCenter, hitPoint);
 			//deltaValue += backtrackWidth;
 			if(trigger.GetNeedVector2Value(Velocity) != 0) {
-				Vector2 nextWorldCenter = lastWorldCenter + deltaValue / trigger.GetNeedVector2Value(Velocity) * Velocity;
+				//Vector2 nextWorldCenter = lastWorldCenter + deltaValue / trigger.GetNeedVector2Value(Velocity) * Velocity;
+				Vector2 nextWorldCenter = lastWorldCenter + deltaValue * rayAbsDirection;
 				Position += nextWorldCenter - nowWorldCenter;
 				if(rayDirection.x == 0) {
 					Velocity = new Vector2(Velocity.x, 0);

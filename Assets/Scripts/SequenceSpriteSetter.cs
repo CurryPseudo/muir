@@ -33,7 +33,7 @@ public class SequenceSpriteSetter : MonoBehaviour {
             }
         }
     }
-    public int targetWidth = 2436;
+    public float targetWidth = 2436;
     public int index;
     public Vector3 originScale;
     public float originDistance;
@@ -43,6 +43,7 @@ public class SequenceSpriteSetter : MonoBehaviour {
 	#endregion
 	#region Monobehaviour Methods
     void Awake() {
+        targetWidth = GetComponent<SpriteRenderer>().sprite.textureRect.width;
     }
     void Update() {
     }

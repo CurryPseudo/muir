@@ -11,6 +11,7 @@ public class GameObjectPuter : MonoBehaviour {
 	public GameObject newestInstance;
 	public SequenceSpritesWithIndex sequenceSprites;
 	public Transform putTransformParent;
+	public MovementFsm parallaxMovement;
 	// Use this for initialization
 	void Start () {
 		
@@ -51,6 +52,15 @@ public class GameObjectPuter : MonoBehaviour {
 			newestInstance = newGround;
 			points = newestInstance.GetComponent<PuterPoint>();
 			distance = (points.StartPoint - transform.position).magnitude;
+			ParallaxMove parallax = newGround.GetComponent<ParallaxMove>();
+			if(parallax != null) {
+				parallax.movement = parallaxMovement;
+				parallax.sequenceSprites = sequenceSprites;
+			}
+			DisableMonoBehaviourByPlayerDie disableEvent = newGround.GetComponent<DisableMonoBehaviourByPlayerDie>();
+			if(disableEvent != null) {
+				disableEvent.movementFsm = parallaxMovement;
+			}
 		}
 	}
 }
