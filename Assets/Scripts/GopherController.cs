@@ -55,9 +55,13 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			}
 			movementFsm.DieHits = new List<RaycastHit2D>(hits);
 			movementFsm.ChangeState(MovementFsm.DeadStateWithEvent.Instance);
-			Timer.BeginATimer(2, () => {SceneManager.LoadScene(0);}, this);
+			Timer.BeginATimer(2, LoadDeadScene, this);
 			ChangeState(DeadState.Instance);
 			return true;
+		}
+		private void LoadDeadScene() {
+			GameStatus.Now.deadInterface = true;
+			SceneManager.LoadSceneAsync("Home");
 		}
 		private void ChangeStateToNormal(){
 			ChangeState(NormalState.Instance);
