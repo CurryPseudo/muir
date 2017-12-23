@@ -60,8 +60,12 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			return true;
 		}
 		private void LoadDeadScene() {
-			GameStatus.Now.deadInterface = true;
-			SceneManager.LoadSceneAsync("Home");
+			if(GameStatus.Now != null) {
+				GameStatus.Now.deadInterface = true;
+				SceneManager.LoadSceneAsync("Home");
+			}else {
+				SceneManager.LoadSceneAsync("MainScene");
+			}
 		}
 		private void ChangeStateToNormal(){
 			ChangeState(NormalState.Instance);

@@ -8,7 +8,9 @@ public class ScorePauseByPlayerDie : MonoBehaviourHasDestroyEvent {
 	#endregion
 	#region Private Methods And Fields
     void PauseScore() {
-        GameStatus.Now.RecentScore = score.score;
+        if(GameStatus.Now != null) {
+            GameStatus.Now.RecentScore = score.score;
+        }
         score.pause = true;
     }
 	#endregion	
