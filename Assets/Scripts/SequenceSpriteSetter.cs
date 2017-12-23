@@ -26,14 +26,16 @@ public class SequenceSpriteSetter : MonoBehaviour {
                     //transform.localScale = targetScale;
                 }
                 if(puterPoint != null && changeSize) {
-                    float nowDistance = originDistance * (float)targetSprite.textureRect.width / targetWidth;
+
+                    float nowAspect = targetSprite.texture.width / targetSprite.texture.height;
+                    float nowDistance = originDistance * nowAspect / targetAspect;
                     puterPoint.startPoint = new Vector2(originCenter.x - nowDistance / 2, puterPoint.startPoint.y);
                     puterPoint.endPoint = new Vector2(originCenter.x + nowDistance / 2, puterPoint.endPoint.y);
                 }
             }
         }
     }
-    public float targetWidth = 2436;
+    public float targetAspect = 0;
     public int index;
     public Vector3 originScale;
     public float originDistance;
@@ -43,7 +45,8 @@ public class SequenceSpriteSetter : MonoBehaviour {
 	#endregion
 	#region Monobehaviour Methods
     void Awake() {
-        targetWidth = GetComponent<SpriteRenderer>().sprite.textureRect.width;
+        Texture2D texture = GetComponent<SpriteRenderer>().sprite.texture;
+        targetAspect = texture.width / texture.height;
     }
     void Update() {
     }

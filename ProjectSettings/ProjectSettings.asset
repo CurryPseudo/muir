@@ -7,7 +7,7 @@ PlayerSettings:
   productGUID: 0f40edbeaec2f418d9cbbe46be7dac7c
   AndroidProfiler: 0
   defaultScreenOrientation: 3
-  targetDevice: 2
+  targetDevice: 0
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: BingYanStudio
