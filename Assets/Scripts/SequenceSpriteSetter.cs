@@ -10,9 +10,9 @@ public class SequenceSpriteSetter : MonoBehaviour {
     public SequenceSpritesWithIndex SequenceSpritesWithIndex{
         set{
             sequenceSpriteWithIndex = value;
-            sequenceSpriteWithIndex.IncreaseIndex();
             if(index == -1) {
-                index = sequenceSpriteWithIndex.nowIndex;
+                sequenceSpriteWithIndex.IncreaseIndex();
+                index = sequenceSpriteWithIndex.NowIndex;
                 Sprite targetSprite = sequenceSpriteWithIndex.spriteList[index];
                 GetComponent<SpriteRenderer>().sprite = targetSprite;
                 if(changeSize) {
@@ -26,8 +26,7 @@ public class SequenceSpriteSetter : MonoBehaviour {
                     //transform.localScale = targetScale;
                 }
                 if(puterPoint != null && changeSize) {
-
-                    float nowAspect = targetSprite.texture.width / targetSprite.texture.height;
+                    float nowAspect = (float)targetSprite.texture.width / targetSprite.texture.height;
                     float nowDistance = originDistance * nowAspect / targetAspect;
                     puterPoint.startPoint = new Vector2(originCenter.x - nowDistance / 2, puterPoint.startPoint.y);
                     puterPoint.endPoint = new Vector2(originCenter.x + nowDistance / 2, puterPoint.endPoint.y);
@@ -46,7 +45,7 @@ public class SequenceSpriteSetter : MonoBehaviour {
 	#region Monobehaviour Methods
     void Awake() {
         Texture2D texture = GetComponent<SpriteRenderer>().sprite.texture;
-        targetAspect = texture.width / texture.height;
+        targetAspect = (float)texture.width / texture.height;
     }
     void Update() {
     }

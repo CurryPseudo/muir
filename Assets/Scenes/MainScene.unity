@@ -1796,7 +1796,7 @@ MonoBehaviour:
   bottomLayers:
     serializedVersion: 2
     m_Bits: 1024
-  holdMouseTime: 0.15
+  holdMouseTime: 0.2
   movementFsm: {fileID: 1163877488}
   onGroundBoxRayCaster: {fileID: 895756140}
   diggingBoxRayCaster: {fileID: 808540001}
@@ -2037,6 +2037,11 @@ Prefab:
         type: 2}
       propertyPath: targetHeight
       value: 181
+      objectReference: {fileID: 0}
+    - target: {fileID: 114688518599691392, guid: 19849eec37e36454cb0b71f5a3167ce3,
+        type: 2}
+      propertyPath: index
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 19849eec37e36454cb0b71f5a3167ce3, type: 2}
@@ -2763,7 +2768,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d77b94e629d8948a0a3963091feefd3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frameRate: 60
+  frameRate: 120
 --- !u!4 &2033645845
 Transform:
   m_ObjectHideFlags: 0

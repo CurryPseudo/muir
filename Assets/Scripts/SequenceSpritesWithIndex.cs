@@ -4,12 +4,21 @@ using UnityEngine;
 
 public class SequenceSpritesWithIndex : MonoBehaviour {
 	#region Properties
+	public int NowIndex{
+		get{
+			return nowIndex;
+		}
+		set{
+			nowIndex = value;
+		}
+	}
 	public List<Sprite> spriteList = new List<Sprite>();
-	public int nowIndex = 0;
-	public static int globalIndex = 0;
+	public int nowIndex = 13;
 	public float widthSum; //Sequence sprites' width sum;
 	#endregion
 	#region Inspector
+	void Awake() {
+	}
 	void Update() {
 	}
 	#endregion
