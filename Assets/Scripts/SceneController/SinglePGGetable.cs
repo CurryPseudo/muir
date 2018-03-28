@@ -7,8 +7,7 @@ namespace SceneController{
         public PutableGo singlePrefab;
         public override PutableGo GetNextPutableGo()
         {
-            var pg = Instantiate(singlePrefab).GetComponent<PutableGo>();
-            return pg;
+            return singlePrefab;
         }
     }
 }

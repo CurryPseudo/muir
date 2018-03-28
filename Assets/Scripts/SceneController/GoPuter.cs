@@ -6,6 +6,7 @@ using Sirenix.OdinInspector;
 using PseudoTools;
 using Sirenix.Serialization;
 namespace SceneController {
+    [ExecuteInEditMode]
     public class GoPuter : MonoBehaviour {
         [OnValueChanged("normalizePositiveDir")]
         public Vector2 positiveDirection = new Vector2(1,0);
@@ -32,14 +33,10 @@ namespace SceneController {
         public NextPutableGoGetableScriptable nextGoGetter;
         public List<PutableGo> pgList = new List<PutableGo>();
         public void Update() {
-
+            updatePuter();
         }
         [Button("更新")]
         public void updatePuter() {
-            ListUltility.DeleteIf(pgList, (pg => pg == null));
-            if(pgList.Count == 0) {
-                CreateDefaultPG();
-            }
             Func<PutableGo,Vector2> GetNegativePoint = (pg => pg.NegativePointWorld);
             Func<PutableGo,Vector2> GetPositivePoint = (pg => pg.PositivePointWorld);
             Action<Func<PutableGo,Vector2>,Func<PutableGo,Action<Vector2>>,Func<Vector2,Vector2,bool>,Vector2> extandToRange = (GetPoint, PutBy, Comp, disDir)=>{
@@ -52,25 +49,27 @@ namespace SceneController {
                     }
                 }
                 while(!Comp(bestPoint, disDir)) {
-                    var nextPG = NormDir(nextGoGetter.GetNextPutableGo());
+                    var nextPG = NormDir(Instantiate(nextGoGetter.GetNextPutableGo()));
                     nextPG.transform.SetParent(transform, true);
                     pgList.Add(nextPG);
                     PutBy(nextPG)(bestPoint);
                     bestPoint = GetPoint(nextPG);
                 }
             };
-            extandToRange(GetNegativePoint,(pg => pg.PutNegativeBy), Negativer, NegDisDir);
-            extandToRange(GetPositivePoint,(pg => pg.PutPositiveBy), Positiver, PosDisDir);
-
-
             Action<Func<PutableGo,Vector2>,Vector2,Func<Vector2,Vector2,bool>> deleteToRange = (GetPoint, disDir, Comp)=>{
                 ListUltility.DoIf(pgList, (pg => !Comp(GetPoint(pg), disDir)), (pg)=>{
                     DestroyImmediate(pg.gameObject);
                 });
                 ListUltility.DeleteIf(pgList, (pg => pg == null));
             };
+            ListUltility.DeleteIf(pgList, (pg => pg == null));
             deleteToRange(GetPositivePoint, NegDisDir, Positiver);
             deleteToRange(GetNegativePoint, PosDisDir, Negativer);
+            if(pgList.Count == 0) {
+                CreateDefaultPG();
+            }
+            extandToRange(GetNegativePoint,(pg => pg.PutNegativeBy), Negativer, NegDisDir);
+            extandToRange(GetPositivePoint,(pg => pg.PutPositiveBy), Positiver, PosDisDir);
         }
         private PutableGo NormDir(PutableGo go) {
             if(Positiver(go.NegativePointWorld, go.PositivePointWorld)) {
