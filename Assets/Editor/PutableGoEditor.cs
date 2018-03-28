@@ -8,9 +8,9 @@ public class PutableGoEditor : Editor {
 
 		Handles.color = Color.yellow;
 		pg.NegativePointWorld = Handles.PositionHandle(pg.NegativePointWorld, Quaternion.identity);
-		Handles.ArrowHandleCap(0, pg.NegativePointWorld, Quaternion.identity, 1f, EventType.Repaint);
+		Handles.ArrowHandleCap(0, pg.NegativePointWorld, Quaternion.identity, HandleUtility.GetHandleSize(pg.NegativePointWorld), EventType.Repaint);
 		Handles.color = Color.red;
 		pg.PositivePointWorld = Handles.PositionHandle(pg.PositivePointWorld, Quaternion.identity);
-		Handles.ArrowHandleCap(1, pg.PositivePointWorld, Quaternion.identity, 1f, EventType.Repaint);
+		Handles.ArrowHandleCap(1, pg.PositivePointWorld, Quaternion.identity, HandleUtility.GetHandleSize(pg.PositivePointWorld), eventType: EventType.Repaint);
     }
 }

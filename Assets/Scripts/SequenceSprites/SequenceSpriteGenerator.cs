@@ -12,8 +12,8 @@ namespace SequenceSprite{
 public class SequenceSpriteGenerator : MonoBehaviour {
 	public string spritesFileDir;
 	public string spritesFileSuffix = ".png";
-	public Direction xDirection;
-	public Direction yDirection;
+	public DirectionSign xDirection;
+	public DirectionSign yDirection;
 	[ReadOnly]
 	public List<GameObject> goList = new List<GameObject>();
 	#if UNITY_EDITOR
@@ -84,10 +84,5 @@ public class SequenceSpriteGenerator : MonoBehaviour {
 		}
 		Selection.objects = selectObjects;
 	}
-}
-public enum Direction{
-	Forward = 1,
-	Stay = 0,
-	Backward = -1
 }
 }
