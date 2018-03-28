@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
+using PseudoTools;
 namespace SceneController {
 	public class PutableGo: MonoBehaviour {
 		public Vector2 negativePoint = new Vector2(1,0);
@@ -24,16 +25,20 @@ namespace SceneController {
 			}
 		}
 		public void PutNegativeBy(PutableGo pg) {
-			PutBy(pg.NegativePointWorld, positivePoint);
+			PutBy(pg.NegativePointWorld, PositivePointWorld);
 		}	
-		
+		public void PutNegativeBy(Vector2 _negativePointWorld) {
+			PutBy(_negativePointWorld, PositivePointWorld);
+		}
 		public void PutPositiveBy(PutableGo pg) {
-			PutBy(pg.PositivePointWorld, negativePoint);
+			PutBy(pg.PositivePointWorld, NegativePointWorld);
 		}	
+		public void PutPositiveBy(Vector2 _positivePointWorld) {
+			PutBy(_positivePointWorld, NegativePointWorld);
+		}
 		private void PutBy(Vector2 p1, Vector2 p2) {
-			Vector3 p1v3 = new Vector3(p1.x, p1.y, 0);
-			Vector3 position = p1v3 - transform.TransformVector(p2);
-			transform.position = position;
+			Vector2 position = p1 - p2;
+			transform.position = transform.position + VectorUltility.v23(position);
 		}
 	
 	}

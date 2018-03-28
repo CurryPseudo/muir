@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using System;
+using PseudoTools;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -33,8 +34,7 @@ public class SequenceSpriteGenerator : MonoBehaviour {
 			renderer.sprite = _s;
 			go.transform.SetParent(transform, false);
 			goList.Add(go);
-			RelateGoList rgl = go.AddComponent<RelateGoList>();
-			rgl.relateList = goList;
+			RelateGoList.Attach(go, goList);
 			return go;
 		};
 		GameObject lastGo = null;

@@ -2,6 +2,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using SceneController;
 using System;
+using PseudoTools;
 namespace SceneController{
     [ExecuteInEditMode]
     public class PutableGoPointEditor : MonoBehaviour {
