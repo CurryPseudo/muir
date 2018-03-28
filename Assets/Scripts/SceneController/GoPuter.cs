@@ -30,20 +30,20 @@ namespace SceneController {
         public float positiveDistance = 10;
         public float negativeDistance = 10;
         public NextPutableGoGetableScriptable nextGoGetter;
-        [ReadOnly]
-        public List<GameObject> pgList = new List<GameObject>();
+        public List<PutableGo> pgList = new List<PutableGo>();
         public void Update() {
 
         }
         [Button("更新")]
         public void updatePuter() {
+            ListUltility.DeleteIf(pgList, (pg => pg == null));
             if(pgList.Count == 0) {
                 CreateDefaultPG();
             }
             Func<PutableGo,Vector2> GetNegativePoint = (pg => pg.NegativePointWorld);
             Func<PutableGo,Vector2> GetPositivePoint = (pg => pg.PositivePointWorld);
             Action<Func<PutableGo,Vector2>,Func<PutableGo,Action<Vector2>>,Func<Vector2,Vector2,bool>,Vector2> extandToRange = (GetPoint, PutBy, Comp, disDir)=>{
-                Func<int,PutableGo> getPutableGo = (index => pgList[index].GetComponent<PutableGo>());
+                Func<int,PutableGo> getPutableGo = (index => pgList[index]);
                 Vector2 bestPoint = GetPoint(getPutableGo(0));
                 for(int i = 1; i < pgList.Count; i++) {
                     var pg = getPutableGo(i);
@@ -54,8 +54,7 @@ namespace SceneController {
                 while(!Comp(bestPoint, disDir)) {
                     var nextPG = NormDir(nextGoGetter.GetNextPutableGo());
                     nextPG.transform.SetParent(transform, true);
-                    pgList.Add(nextPG.gameObject);
-                    RelateGoList.Attach(nextPG.gameObject, pgList);
+                    pgList.Add(nextPG);
                     PutBy(nextPG)(bestPoint);
                     bestPoint = GetPoint(nextPG);
                 }
@@ -63,24 +62,15 @@ namespace SceneController {
             extandToRange(GetNegativePoint,(pg => pg.PutNegativeBy), Negativer, NegDisDir);
             extandToRange(GetPositivePoint,(pg => pg.PutPositiveBy), Positiver, PosDisDir);
 
-            List<GameObject> deleteList = new List<GameObject>();
 
             Action<Func<PutableGo,Vector2>,Vector2,Func<Vector2,Vector2,bool>> deleteToRange = (GetPoint, disDir, Comp)=>{
-                foreach(var go in pgList) {
-                    var pg = go.GetComponent<PutableGo>();
-                    if(!Comp(GetPoint(pg), disDir)) {
-                        deleteList.Add(go);
-                    }
-                }
+                ListUltility.DoIf(pgList, (pg => !Comp(GetPoint(pg), disDir)), (pg)=>{
+                    DestroyImmediate(pg.gameObject);
+                });
+                ListUltility.DeleteIf(pgList, (pg => pg == null));
             };
             deleteToRange(GetPositivePoint, NegDisDir, Positiver);
             deleteToRange(GetNegativePoint, PosDisDir, Negativer);
-
-            foreach(var go in deleteList) {
-                DestroyImmediate(go);
-            }
-
-
         }
         private PutableGo NormDir(PutableGo go) {
             if(Positiver(go.NegativePointWorld, go.PositivePointWorld)) {
@@ -108,9 +98,8 @@ namespace SceneController {
             gp.NegativePointWorld = NegDisDir - positiveDirection * littleOffset;
 
             go.transform.SetParent(transform,false);
+            pgList.Add(gp);
 
-            pgList.Add(go);
-            RelateGoList.Attach(go, pgList);
         }
     }
 }

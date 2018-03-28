@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a32037472912284d89b0886b1bd06d1, type: 3}
-  m_Name: Fronts
+  m_Name: Test
   m_EditorClassIdentifier: 
   serializationData:
     SerializedFormat: 2
@@ -20,5 +20,5 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  singlePrefab: {fileID: 114278910749002284, guid: 3996475ad5f2a7f44a63dd5afcbe5860,
+  singlePrefab: {fileID: 114870379198678842, guid: 2b634aa77a169c44fa727ab5706c6b77,
     type: 2}
