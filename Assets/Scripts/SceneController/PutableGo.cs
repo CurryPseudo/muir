@@ -38,7 +38,7 @@ namespace SceneController {
 		}
 		private void PutBy(Vector2 p1, Vector2 p2) {
 			Vector2 position = p1 - p2;
-			transform.position = transform.position + VectorUltility.v23(position);
+			transform.position = transform.position + VectorUltility.V23(position);
 		}
 	
 	}

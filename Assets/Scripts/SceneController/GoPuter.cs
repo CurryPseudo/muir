@@ -6,8 +6,7 @@ using Sirenix.OdinInspector;
 using PseudoTools;
 using Sirenix.Serialization;
 namespace SceneController {
-    [ExecuteInEditMode]
-    public class GoPuter : MonoBehaviour {
+    public class GoPuter : CouldDisableEditorUpdateMonoBehaviour {
         [OnValueChanged("normalizePositiveDir")]
         public Vector2 positiveDirection = new Vector2(1,0);
         private void normalizePositiveDir() {
@@ -17,12 +16,12 @@ namespace SceneController {
         public Transform baseTransform;
         public Vector2 PosDisDir{
             get{
-                return VectorUltility.v32(baseTransform.position) + positiveDirection * positiveDistance;
+                return VectorUltility.V32(baseTransform.position) + positiveDirection * positiveDistance;
             }
         }
         public Vector2 NegDisDir{
             get{
-                return VectorUltility.v32(baseTransform.position) - positiveDirection * negativeDistance;
+                return VectorUltility.V32(baseTransform.position) - positiveDirection * negativeDistance;
             }
         }
         private bool validTransform(Transform t) {
@@ -30,13 +29,22 @@ namespace SceneController {
         }
         public float positiveDistance = 10;
         public float negativeDistance = 10;
+        [InlineEditor]
         public NextPutableGoGetableScriptable nextGoGetter;
         public List<PutableGo> pgList = new List<PutableGo>();
-        public void Update() {
-            updatePuter();
+        public bool showGizmos = false;
+        public override void _Update() {
+            UpdatePuter();
+        }
+        private void inputNotValid() {
+            editorUpdate = false;
         }
         [Button("更新")]
-        public void updatePuter() {
+        public void UpdatePuter() {
+            if(baseTransform == null){
+                inputNotValid();
+                return;
+            } 
             Func<PutableGo,Vector2> GetNegativePoint = (pg => pg.NegativePointWorld);
             Func<PutableGo,Vector2> GetPositivePoint = (pg => pg.PositivePointWorld);
             Action<Func<PutableGo,Vector2>,Func<PutableGo,Action<Vector2>>,Func<Vector2,Vector2,bool>,Vector2> extandToRange = (GetPoint, PutBy, Comp, disDir)=>{
@@ -63,13 +71,14 @@ namespace SceneController {
                 ListUltility.DeleteIf(pgList, (pg => pg == null));
             };
             ListUltility.DeleteIf(pgList, (pg => pg == null));
-            deleteToRange(GetPositivePoint, NegDisDir, Positiver);
-            deleteToRange(GetNegativePoint, PosDisDir, Negativer);
             if(pgList.Count == 0) {
                 CreateDefaultPG();
             }
             extandToRange(GetNegativePoint,(pg => pg.PutNegativeBy), Negativer, NegDisDir);
             extandToRange(GetPositivePoint,(pg => pg.PutPositiveBy), Positiver, PosDisDir);
+            deleteToRange(GetPositivePoint, NegDisDir, Positiver);
+            deleteToRange(GetNegativePoint, PosDisDir, Negativer);
+            ListUltility.DeleteIf(pgList, (pg => pg == null));
         }
         private PutableGo NormDir(PutableGo go) {
             if(Positiver(go.NegativePointWorld, go.PositivePointWorld)) {
@@ -93,12 +102,20 @@ namespace SceneController {
             var gp = go.AddComponent<PutableGo>();
             
             float littleOffset = 0.1f;
-            gp.PositivePointWorld = PosDisDir + positiveDirection * littleOffset;
-            gp.NegativePointWorld = NegDisDir - positiveDirection * littleOffset;
+            gp.PositivePointWorld = VectorUltility.V32(baseTransform.position) + positiveDirection * littleOffset;
+            gp.NegativePointWorld = VectorUltility.V32(baseTransform.position) - positiveDirection * littleOffset;
 
-            go.transform.SetParent(transform,false);
+            go.transform.SetParent(transform, true);
             pgList.Add(gp);
 
+        }
+        public void OnDrawGizmos() {
+            if(baseTransform != null) {
+                if(showGizmos) {
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawLine(NegDisDir, PosDisDir);
+                }
+            }
         }
     }
 }

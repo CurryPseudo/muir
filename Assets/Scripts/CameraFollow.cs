@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
-public class CameraFollow : MonoBehaviour {
+public class CameraFollow : CouldDisableEditorUpdateMonoBehaviour{
 	#region private fields
 		private Vector3 cameraPosition;
 	#endregion
@@ -26,10 +25,7 @@ public class CameraFollow : MonoBehaviour {
 	{
 	}
 	// Update is called once per frame
-	void Update () {
-	}
-	void FixedUpdate() {
-
+	public override void _Update () {
 		Vector3 newPosition = transform.position;
 		if(!lockX) {
 			newPosition.x = cameraPosition.x;
@@ -46,5 +42,8 @@ public class CameraFollow : MonoBehaviour {
 			newPosition = afterPosition.Value;
 		}
 		Camera.main.gameObject.transform.position = newPosition; 
+	}
+	void FixedUpdate() {
+
 	}
 }
