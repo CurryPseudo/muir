@@ -3097,7 +3097,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 808540000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e3c147cbce404a499b44f9ff452142f, type: 3}
+  m_Script: {fileID: 11500000, guid: e2da80aa0c44f8c459917c96db0a2f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rayLength: 0.1
@@ -3292,7 +3292,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 895756139}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e3c147cbce404a499b44f9ff452142f, type: 3}
+  m_Script: {fileID: 11500000, guid: e2da80aa0c44f8c459917c96db0a2f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rayLength: 0.09
@@ -4337,7 +4337,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1155253558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07bf57d0ebd8f43129e5b7b08e71927e, type: 3}
+  m_Script: {fileID: 11500000, guid: 82e5d12162ed4374da5db11e9a8f07d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 1155253561}
@@ -4351,7 +4351,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1155253558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46c9dea55e2ab46678d09684923dbd8c, type: 3}
+  m_Script: {fileID: 11500000, guid: 404abe8b4c042354cab322ec54a47a15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   movementFsm: {fileID: 1163877488}
@@ -4366,7 +4366,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1155253558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bcdc91654ec54437d8c6c4c20eaab3b6, type: 3}
+  m_Script: {fileID: 11500000, guid: 0e39b2218c9f2304d8fb84e88e44f8cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentStateName: 
@@ -4434,7 +4434,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1155253558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ffbff1ad471d4586b08f0da321e6388, type: 3}
+  m_Script: {fileID: 11500000, guid: 24ca873421fc3ff40bdaf44a22260023, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentStateName: 
@@ -4445,7 +4445,7 @@ MonoBehaviour:
   yMaxSpeed: 10
   yMaxSpeedInGroundUp: 6.36
   yMaxSpeedInGroundDown: 1.55
-  yDigJumpSpeed: 6.3048477
+  yDigJumpSpeed: 6.304848
   onGroundLayer:
     serializedVersion: 2
     m_Bits: 256
