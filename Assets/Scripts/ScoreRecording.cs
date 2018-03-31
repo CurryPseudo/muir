@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PseudoTools;
 
 public class ScoreRecording : MonoBehaviour {
 	#region Properties
@@ -22,6 +23,9 @@ public class ScoreRecording : MonoBehaviour {
         if(!pause) {
             float floatScore = (transform.position.x - originX) / scoreStep;
             score = (int)floatScore;
+            if(score > 15 && score < 20) {
+                EventBus.Notify("ScoreOver", score);
+            }
         }
     }
 	#endregion

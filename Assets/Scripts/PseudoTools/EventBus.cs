@@ -37,31 +37,40 @@ namespace PseudoTools {
             mapAction(observer, (re) => {
                 var eventName = re.EventName;
                 if(!ObserverMap.ContainsKey(eventName)) {
-                    throw new Exception("Cant find the event name in EventBus.");
+                    //throw new Exception("Cant find the event name in EventBus.");
+                    return;
                 }
                 if(!ObserverMap[eventName].Contains(observer)) {
-                    throw new Exception("Cant find the target observer in EventBus.");
+                    return;
                 }
                 ObserverMap[eventName].Remove(observer);
             });
         } 
-        public static void Notify(string eventName, string eventContent) {
+        public static void Notify(string eventName, params object[] eventContents) {
             if(!ObserverMap.ContainsKey(eventName)) {
-                throw new Exception("Cant find the event name in EventBus.");
+                return;
             }
             foreach(var observer in ObserverMap[eventName]) {
-                MethodInfo receiveMethod = observer.GetType().GetMethod("Receive" + eventName);
-                if(receiveMethod != null) {
-                    ParameterInfo[] ps = receiveMethod.GetParameters();
-                    if(ps.Length == 1 && ps[0].GetType() == typeof(string)) {
-                        object[] invokeParameter = new object[]{eventContent};
-                        receiveMethod.Invoke(observer, invokeParameter);
+                Func<ParameterInfo[], object[], bool> sameTypeParameters = (ps, os) => {
+                    if(ps.Length != os.Length) {
+                        return false;
+                    }
+                    for(int i = 0; i < ps.Length; i++) {
+                        if(ps[i].ParameterType != os[i].GetType()) {
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+                foreach(var method in observer.GetType().GetMethods()) {
+                    if(method.Name == "Receive" + eventName && sameTypeParameters(method.GetParameters(), eventContents)) {
+                        method.Invoke(observer, eventContents);
                     }
                 }
             }
         }
     }
-    public abstract class PObserverMonoBehaviour : MonoBehaviour {
+    public abstract class ObserverMonoBehaviour : MonoBehaviour {
        public void OnEnable() {
            EventBus.Register(this);
            _OnEnable();

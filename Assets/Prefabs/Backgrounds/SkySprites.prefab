@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 114342955349213450}
   - component: {fileID: 114890837756064742}
   - component: {fileID: 114218074094721276}
-  - component: {fileID: 114597017215468970}
+  - component: {fileID: 114768763938036882}
   m_Layer: 0
   m_Name: SkySprites
   m_TagString: Untagged
@@ -569,23 +569,6 @@ MonoBehaviour:
   - {fileID: 1244170897039628}
   - {fileID: 1524647493528198}
   removeWhenDestroyed: 1
---- !u!114 &114597017215468970
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1515129051256718}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5605bd9cb45681f449952b81106961c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseTransform: {fileID: 0}
-  degrees: {x: 0.46480486, y: 0}
-  editorUpdate: 0
-  xDirection: 1
-  yDirection: 0
-  targetGo: {fileID: 1124761018675710, guid: 3996475ad5f2a7f44a63dd5afcbe5860, type: 2}
 --- !u!114 &114642880315603812
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -634,6 +617,23 @@ MonoBehaviour:
   - {fileID: 1244170897039628}
   - {fileID: 1524647493528198}
   removeWhenDestroyed: 1
+--- !u!114 &114768763938036882
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1515129051256718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0402e5ae28d8a984f9e89b306f7400dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  editorUpdate: 0
+  baseTransform: {fileID: 0}
+  degrees: {x: 0.5351951, y: 0}
+  xDirection: 1
+  yDirection: 0
+  targetGo: {fileID: 0}
 --- !u!114 &114876576722624556
 MonoBehaviour:
   m_ObjectHideFlags: 1
