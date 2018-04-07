@@ -78,7 +78,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 		}
 		void Awake()	
 		{
-			ChangeState(OnGroundStateWithEvent.Instance);
+			ChangeState<OnGroundStateWithEvent>();
 		}
 		void Update()
 		{
@@ -147,7 +147,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 	
 	#region State
 	
-    public class OnGroundStateWithEvent : StateWithEvent<OnGroundStateWithEvent>
+    public class OnGroundStateWithEvent : StateSingleton<OnGroundStateWithEvent>
     {
         public override void OnEnterWithEvent(MovementFsm fsm)
         {
@@ -156,7 +156,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
         {
 			
 			if(!fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
-				fsm.ChangeState(InAirStateWithEvent.Instance);
+				fsm.ChangeState<InAirStateWithEvent>();
 				return;
 			}
 			
@@ -168,7 +168,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			return "OnGround";
 		}
     }
-	public class InAirStateWithEvent : StateWithEvent<InAirStateWithEvent> 
+	public class InAirStateWithEvent : StateSingleton<InAirStateWithEvent> 
 	{
         public override void OnEnterWithEvent(MovementFsm fsm)
         {
@@ -181,7 +181,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 				fsm.Velocity = new Vector2(fsm.Velocity.x, Mathf.Sign(fsm.Velocity.y) * fsm.yMaxSpeed);
 			}
 			if(fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
-				fsm.ChangeState(OnGroundStateWithEvent.Instance);
+				fsm.ChangeState<OnGroundStateWithEvent>();
 				fsm.Backtrack(fsm.boxRayCaster.Down);
 			}
 			
@@ -195,7 +195,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			return "InAir";
 		}
     }
-	public class InGroundStateWithEvent : StateWithEvent<InGroundStateWithEvent>
+	public class InGroundStateWithEvent : StateSingleton<InGroundStateWithEvent>
 	{
 		public override void OnEnterWithEvent(MovementFsm fsm) {
 		}
@@ -206,7 +206,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			fsm.Velocity = new Vector2(fsm.Velocity.x, velocityY);
 			if(!fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
 				fsm.Velocity = new Vector2(fsm.Velocity.x, fsm.yDigJumpSpeed);
-				fsm.ChangeState(InAirStateWithEvent.Instance);
+				fsm.ChangeState<InAirStateWithEvent>();
 			}
 		}
 		public override void OnExitWithEvent(MovementFsm fsm) {
@@ -215,7 +215,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			return "InGround";
 		}
 	}
-    public class DeadStateWithEvent : StateWithEvent<DeadStateWithEvent>
+    public class DeadStateWithEvent : StateSingleton<DeadStateWithEvent>
     {
 
 		public override void OnEnterWithEvent(MovementFsm fsm) {
@@ -236,7 +236,7 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			return "Dead";
         }
     }
-	public class FrozenStateWithEvent : StateWithEvent<FrozenStateWithEvent> 
+	public class FrozenStateWithEvent : StateSingleton<FrozenStateWithEvent> 
 	{
 		public override string GetStateName() {
 			return "Frozen";

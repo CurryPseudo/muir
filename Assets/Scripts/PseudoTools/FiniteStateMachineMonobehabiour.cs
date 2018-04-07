@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : FiniteStateMachineMonobehaviour<T>{ 
@@ -13,7 +14,37 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 		void OnExit(T fsm);
 		string ToString();
 	}
-	public abstract class State<K> : IState where K : State<K> ,new(){
+    public abstract class StateWithEvent : IState
+    {
+		public abstract IEnterEvents<T> GetEnterEvents();
+        public void OnEnter(T fsm) {
+			GetEnterEvents().Invoke(fsm);
+			OnEnterWithEvent(fsm);
+		}
+		public virtual void OnEnterWithEvent(T fsm){} 
+		public abstract IEnterEvents<T> GetExcuteEvents();
+        public void OnExcute(T fsm) {
+			GetExcuteEvents().Invoke(fsm);
+			OnExcuteWithEvent(fsm);
+		}
+		public virtual void OnExcuteWithEvent(T fsm){} 
+		public abstract IEnterEvents<T> GetExitEvents();
+        public void OnExit(T fsm) {
+			GetExitEvents().Invoke(fsm);
+			OnExitWithEvent(fsm);
+		}
+		public virtual void OnExitWithEvent(T fsm){} 
+    }
+	public abstract class StateNormal<K> : StateWithEvent where K : StateSingleton<K>, new() {
+		public static K Instance {
+			get {
+				return new K();
+			}
+		}
+		
+	}
+    public abstract class StateSingleton<K> : StateWithEvent where K : StateSingleton<K> , new(){
+		
 		private static K instance;
 		public static K Instance{
 			get{
@@ -23,37 +54,22 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 				return instance;
 			}
 		}
-		protected State(){
+		public ActionEventMap<T> enterEventMap = new ActionEventMap<T>();
+		public override IEnterEvents<T> GetEnterEvents() {
+			return enterEventMap;
 		}
-		public virtual void OnEnter(T fsm){}
-		public virtual void OnExcute(T fsm){}
-		public virtual void OnExit(T fsm){}
+		public ActionEventMap<T> excuteEventMap = new ActionEventMap<T>();
+		public override IEnterEvents<T> GetExcuteEvents() {
+			return excuteEventMap;
+		}
+		public ActionEventMap<T> exitEventMap = new ActionEventMap<T>();
+		public override IEnterEvents<T> GetExitEvents() {
+			return exitEventMap;
+		}
 		public override string ToString() {
 			return GetStateName();
 		}
 		public abstract string GetStateName();
-	}
-	public abstract class StateWithEvent<K> : State<K> where K : State<K> , new(){
-		
-		public ActionEventMap<T> enterEventMap = new ActionEventMap<T>();
-		public sealed override void OnEnter(T fsm){
-			enterEventMap.Invoke(fsm);
-			OnEnterWithEvent(fsm);
-		}
-		public virtual void OnEnterWithEvent(T fsm){} 
-
-		public ActionEventMap<T> excuteEventMap = new ActionEventMap<T>();
-		public sealed override void OnExcute(T fsm){
-			excuteEventMap.Invoke(fsm);
-			OnExcuteWithEvent(fsm);
-		}
-		public virtual void OnExcuteWithEvent(T fsm){}
-		public ActionEventMap<T> exitEventMap = new ActionEventMap<T>();
-		public sealed override void OnExit(T fsm){
-			exitEventMap.Invoke(fsm);
-			OnExitWithEvent(fsm);
-		}
-		public virtual void OnExitWithEvent(T fsm){}
 	}
 	/// <summary>
 	/// This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
@@ -69,7 +85,10 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 	}
 	protected virtual void FixedUpdateBeforeFSMUpdate() {}
 	protected virtual void FixedUpdateAfterFSMUpdate() {}
-	public void ChangeState(IState newState){
+	public void ChangeState<C>() where C : StateSingleton<C>, new(){
+		ChangeState(StateSingleton<C>.Instance);
+	}
+	private void ChangeState(IState newState) {
 		if(current != null){
 			lastStateName = current.ToString();
 			current.OnExit(this as T);
@@ -78,13 +97,22 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 		current.OnEnter(this as T);
 		currentStateName = current.ToString();
 	}
-	public void AddEnterEvent<C>(System.Action a, System.Func<C, ActionEventMap<T>> f) where C : StateWithEvent<C>, new() {
-		f(StateWithEvent<C>.Instance).AddEnterEvent(this as T, a);
+	private void processEnterEvent<C>(Action a, IEnterEvents<T> ee, Func<IEnterEvents<T>, Action<T, Action>> processAction) {
+		processAction(ee)(this as T, a);
 	}
-	public void AddEnterEvent<C>(System.Action a, System.Func<C, ActionEventMap<T>> f, MonoBehaviourHasDestroyEvent mb) where C : StateWithEvent<C>, new() {
-		f(StateWithEvent<C>.Instance).AddEnterEvent(this as T, a, mb);
+	private void processEnterEvent<C>(Action a, IEnterEvents<T> ee, Func<IEnterEvents<T>, Action<T, Action, MonoBehaviourHasDestroyEvent>> processAction, MonoBehaviourHasDestroyEvent mb) {
+		processAction(ee)(this as T, a, mb);
 	}
-	public void RemoveEnterEvent<C>(System.Action a, System.Func<C, ActionEventMap<T>> f) where C : StateWithEvent<C>, new() {
-		f(StateWithEvent<C>.Instance).RemoveEnterEvent(this as T, a);
+	private C GetStateInstance<C>() where C : StateSingleton<C>, new() {
+		return StateSingleton<C>.Instance;
+	}
+	public void AddEnterEvent<C>(Action a, Func<C, ActionEventMap<T>> f) where C : StateSingleton<C>, new() {
+		processEnterEvent<C>(a, f(GetStateInstance<C>()), ee => ee.AddEnterEvent);
+	}
+	public void AddEnterEvent<C>(Action a, Func<C, ActionEventMap<T>> f, MonoBehaviourHasDestroyEvent mb) where C : StateSingleton<C>, new() {
+		processEnterEvent<C>(a, f(GetStateInstance<C>()), ee => ee.AddEnterEvent, mb);
+	}
+	public void RemoveEnterEvent<C>(Action a, Func<C, ActionEventMap<T>> f) where C : StateSingleton<C>, new() {
+		processEnterEvent<C>(a, f(GetStateInstance<C>()), ee => ee.RemoveEnterEvent);
 	}
 }

@@ -24,14 +24,14 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 	#region MonoBehaviour Methods
 		void Awake()
 		{
-			ChangeState(NormalState.Instance);
+			ChangeState<NormalState>();
 		}
 		void Start () {
 		}
 		protected override void FixedUpdateAfterFSMUpdate() {
 			
 		}
-		void OnDestroy() {
+		void OnDestroyWithEvent() {
 		}
 	#endregion
 	#region Private Methods
@@ -39,9 +39,9 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		private void HitGroundAndDie(List<BoxRayCaster.RayTrigger> hitTrigger) {
 			if(hitTrigger.Count == 0) return;
 			movementFsm.DieTriggers = hitTrigger;
-			movementFsm.ChangeState(MovementFsm.DeadStateWithEvent.Instance);
+			movementFsm.ChangeState<MovementFsm.DeadStateWithEvent>();
 			Timer.BeginATimer(2, () => {SceneManager.LoadScene(0);}, this);
-			ChangeState(DeadState.Instance);
+			ChangeState<DeadState>();
 		}
 		*/
 		private bool HitGroundAndDie(IEnumerable<RaycastHit2D> hits) {
@@ -54,9 +54,9 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 				return false;
 			}
 			movementFsm.DieHits = new List<RaycastHit2D>(hits);
-			movementFsm.ChangeState(MovementFsm.DeadStateWithEvent.Instance);
+			movementFsm.ChangeState<MovementFsm.DeadStateWithEvent>();
 			Timer.BeginATimer(2, LoadDeadScene, this);
-			ChangeState(DeadState.Instance);
+			ChangeState<DeadState>();
 			return true;
 		}
 		private void LoadDeadScene() {
@@ -70,14 +70,14 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 
 	#endregion
     #region States
-    public class NormalState : State<NormalState>
+    public class NormalState : StateSingleton<NormalState>
     {
 		float mouseDownTime = 0;
-		public override void OnEnter(GopherController fsm){
+		public override void OnEnterWithEvent(GopherController fsm){
 			fsm.movementFsm.Velocity = new Vector2(fsm.xSpeed, fsm.movementFsm.Velocity.y);
 		}
 
-		public override void OnExcute(GopherController fsm) {
+		public override void OnExcuteWithEvent(GopherController fsm) {
 			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
 				return;
 			}
@@ -87,8 +87,8 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 				}
 				if(mouseDownTime > fsm.holdMouseTime) {
 					fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, -fsm.movementFsm.yMaxSpeedInGroundDown);
-					fsm.movementFsm.ChangeState(MovementFsm.InGroundStateWithEvent.Instance);
-					fsm.ChangeState(DiggingState.Instance);
+					fsm.movementFsm.ChangeState<MovementFsm.InGroundStateWithEvent>();
+					fsm.ChangeState<DiggingState>();
 					mouseDownTime = 0;
 					return;
 				}
@@ -101,18 +101,18 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			
 			
 		}
-		public override void OnExit(GopherController fsm) {
+		public override void OnExitWithEvent(GopherController fsm) {
 
 		}
 		public override string GetStateName(){
 			return "Normal";
 		}	
     }
-	public class DiggingState : State<DiggingState> {
-		public override void OnEnter(GopherController fsm) {
-			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.AddEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState(NormalState.Instance));
+	public class DiggingState : StateSingleton<DiggingState> {
+		public override void OnEnterWithEvent(GopherController fsm) {
+			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.AddEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState<NormalState>());
 		}
-		public override void OnExcute(GopherController fsm) {
+		public override void OnExcuteWithEvent(GopherController fsm) {
 			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
 				return;
 			}
@@ -130,14 +130,14 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			}
 			fsm.diggingBoxRayCaster.gameObject.transform.rotation = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1));
 		}
-		public override void OnExit(GopherController fsm) {
-			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.RemoveEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState(NormalState.Instance));
+		public override void OnExitWithEvent(GopherController fsm) {
+			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.RemoveEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState<NormalState>());
 		}
 		public override string GetStateName() {
 			return "Digging";
 		}
 	}
-	public class DeadState : State<DeadState> {
+	public class DeadState : StateSingleton<DeadState> {
 		public override string GetStateName() {
 			return "Dead";
 		}

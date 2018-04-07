@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-public class ActionEventMap<T> {
+public class ActionEventMap<T> : IEnterEvents<T>{
     Dictionary<T, ActionEvent> eventMap = new Dictionary<T, ActionEvent>();
 		public void AddEnterEvent(T t, System.Action action) {
 			if(!eventMap.ContainsKey(t)) {
