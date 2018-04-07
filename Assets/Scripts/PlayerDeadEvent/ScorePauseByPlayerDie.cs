@@ -11,7 +11,9 @@ public class ScorePauseByPlayerDie : MonoBehaviourHasDestroyEvent {
         if(GameStatus.Now != null) {
             GameStatus.Now.RecentScore = score.score;
         }
+        
         score.pause = true;
+        
     }
 	#endregion	
 	#region Inspector

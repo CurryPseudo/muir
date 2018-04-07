@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 namespace PseudoTools {
     public class EventBus {
         private static EventBus instance = null;
-        public static Dictionary<string, List<object>> ObserverMap{
+        private static Dictionary<string, List<object>> ObserverMap{
             get{
                 if(instance == null) {
                     instance = new EventBus();
@@ -14,6 +13,7 @@ namespace PseudoTools {
             }
         }
         public Dictionary<string, List<object>> observerMap = new Dictionary<string, List<object>>();
+        //
         public static void Register(object observer) {
             Action<ReceiveEvent> addMap = (re) => {
                 var eventName = re.EventName;
@@ -41,6 +41,7 @@ namespace PseudoTools {
                     return;
                 }
                 if(!ObserverMap[eventName].Contains(observer)) {
+                    //throw new Exception("Cant find the observer in EventBus.");
                     return;
                 }
                 ObserverMap[eventName].Remove(observer);
@@ -70,26 +71,11 @@ namespace PseudoTools {
             }
         }
     }
-    public abstract class ObserverMonoBehaviour : MonoBehaviour {
-       public void OnEnable() {
-           EventBus.Register(this);
-           _OnEnable();
-       }
-       public abstract void _OnEnable();
-       public void OnDisable() {
-           EventBus.Deregister(this);
-           _OnDisable();
-       }
-       public abstract void _OnDisable();
-    }
     [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     sealed class ReceiveEvent: System.Attribute
     {
-        // See the attribute guidelines at
-        //  http://go.microsoft.com/fwlink/?LinkId=85236
         readonly string eventName;
         
-        // This is a positional argument
         public ReceiveEvent(string eventName)
         {
             this.eventName = eventName;
