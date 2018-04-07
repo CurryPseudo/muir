@@ -4,36 +4,36 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
-		#region Properties
-		public Vector2 Velocity {
-			get{
-				return rigidbody2D.velocity;
-			}
-			set{
-				rigidbody2D.velocity = value;
-			}
-		}
-		public float UpdateTime{
-			get{
-				return Time.fixedDeltaTime;
-			}
-		}
-		public Vector2 Position{
-			get{
-				return rigidbody2D.position;
-			}
-			set{
-				rigidbody2D.position = value;
-			}
-		}
+    #region Properties
+    public Vector2 Velocity {
+        get{
+            return rigidbody2D.velocity;
+        }
+        set{
+            rigidbody2D.velocity = value;
+        }
+    }
+    public float UpdateTime{
+        get{
+            return Time.fixedDeltaTime;
+        }
+    }
+    public Vector2 Position{
+        get{
+            return rigidbody2D.position;
+        }
+        set{
+            rigidbody2D.position = value;
+        }
+    }
 
-		public Vector2 VelocityBeforeBacktrack
-		{
-			get
-			{
-				return velocityBeforeBacktrack;
-			}
-		}
+    public Vector2 VelocityBeforeBacktrack
+    {
+        get
+        {
+            return velocityBeforeBacktrack;
+        }
+    }
 
     public List<RaycastHit2D> DieHits
     {
@@ -155,8 +155,6 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
         public override void OnExcuteWithEvent(MovementFsm fsm)
         {
 			
-			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
-			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
 			if(!fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
 				fsm.ChangeState(InAirStateWithEvent.Instance);
 				return;
@@ -182,8 +180,6 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			if(Mathf.Abs(fsm.Velocity.y) > fsm.yMaxSpeed) {
 				fsm.Velocity = new Vector2(fsm.Velocity.x, Mathf.Sign(fsm.Velocity.y) * fsm.yMaxSpeed);
 			}
-			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Right);
-			//fsm.ProcessCollisionBacktrack(fsm.boxRayCaster.Left);
 			if(fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
 				fsm.ChangeState(OnGroundStateWithEvent.Instance);
 				fsm.Backtrack(fsm.boxRayCaster.Down);
@@ -209,10 +205,6 @@ public class MovementFsm : FiniteStateMachineMonobehaviour<MovementFsm> {
 			velocityY = Mathf.Clamp(velocityY, -fsm.yMaxSpeedInGroundDown, fsm.yMaxSpeedInGroundUp);
 			fsm.Velocity = new Vector2(fsm.Velocity.x, velocityY);
 			if(!fsm.boxRayCaster.Down.CheckCollision(fsm.onGroundLayer)) {
-			//var result = new List<BoxRayCaster.RayTrigger>(fsm.boxRayCaster.CheckCollision(fsm.onGroundLayer));
-			//if(result.Count == 0) {
-				//Debug.Log(fsm.boxRayCaster.Down.CollisionStatus);
-				//Debug.Break();
 				fsm.Velocity = new Vector2(fsm.Velocity.x, fsm.yDigJumpSpeed);
 				fsm.ChangeState(InAirStateWithEvent.Instance);
 			}

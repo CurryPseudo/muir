@@ -23,9 +23,6 @@ public class ScoreRecording : MonoBehaviour {
         if(!pause) {
             float floatScore = (transform.position.x - originX) / scoreStep;
             score = (int)floatScore;
-            if(score > 15 && score < 20) {
-                EventBus.Notify("ScoreOver", score);
-            }
         }
     }
 	#endregion

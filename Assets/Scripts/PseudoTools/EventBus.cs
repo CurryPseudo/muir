@@ -63,7 +63,7 @@ namespace PseudoTools {
                     }
                     return true;
                 };
-                foreach(var method in observer.GetType().GetMethods()) {
+                foreach(var method in observer.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
                     if(method.Name == "Receive" + eventName && sameTypeParameters(method.GetParameters(), eventContents)) {
                         method.Invoke(observer, eventContents);
                     }

@@ -6,14 +6,14 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 
 	public string currentStateName;
 	public string lastStateName;
-	public Stateble current;
-	public interface Stateble{
+	public IState current;
+	public interface IState{
 		void OnEnter(T fsm);
 		void OnExcute(T fsm);
 		void OnExit(T fsm);
 		string ToString();
 	}
-	public abstract class State<K> : Stateble where K : State<K> ,new(){
+	public abstract class State<K> : IState where K : State<K> ,new(){
 		private static K instance;
 		public static K Instance{
 			get{
@@ -69,7 +69,7 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 	}
 	protected virtual void FixedUpdateBeforeFSMUpdate() {}
 	protected virtual void FixedUpdateAfterFSMUpdate() {}
-	public void ChangeState(Stateble newState){
+	public void ChangeState(IState newState){
 		if(current != null){
 			lastStateName = current.ToString();
 			current.OnExit(this as T);
@@ -77,5 +77,14 @@ public class FiniteStateMachineMonobehaviour<T> : MonoBehaviour where T : Finite
 		current = newState;
 		current.OnEnter(this as T);
 		currentStateName = current.ToString();
+	}
+	public void AddEnterEvent<C>(System.Action a, System.Func<C, ActionEventMap<T>> f) where C : StateWithEvent<C>, new() {
+		f(StateWithEvent<C>.Instance).AddEnterEvent(this as T, a);
+	}
+	public void AddEnterEvent<C>(System.Action a, System.Func<C, ActionEventMap<T>> f, MonoBehaviourHasDestroyEvent mb) where C : StateWithEvent<C>, new() {
+		f(StateWithEvent<C>.Instance).AddEnterEvent(this as T, a, mb);
+	}
+	public void RemoveEnterEvent<C>(System.Action a, System.Func<C, ActionEventMap<T>> f) where C : StateWithEvent<C>, new() {
+		f(StateWithEvent<C>.Instance).RemoveEnterEvent(this as T, a);
 	}
 }

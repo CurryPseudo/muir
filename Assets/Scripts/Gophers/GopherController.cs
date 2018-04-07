@@ -67,10 +67,6 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 				SceneManager.LoadSceneAsync("MainScene");
 			}
 		}
-		private void ChangeStateToNormal(){
-			ChangeState(NormalState.Instance);
-		}
-		
 
 	#endregion
     #region States
@@ -114,7 +110,7 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
     }
 	public class DiggingState : State<DiggingState> {
 		public override void OnEnter(GopherController fsm) {
-			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.AddEnterEvent(fsm.movementFsm, fsm.ChangeStateToNormal);
+			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.AddEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState(NormalState.Instance));
 		}
 		public override void OnExcute(GopherController fsm) {
 			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
@@ -135,7 +131,7 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			fsm.diggingBoxRayCaster.gameObject.transform.rotation = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1));
 		}
 		public override void OnExit(GopherController fsm) {
-			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.RemoveEnterEvent(fsm.movementFsm, fsm.ChangeStateToNormal);
+			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.RemoveEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState(NormalState.Instance));
 		}
 		public override string GetStateName() {
 			return "Digging";
