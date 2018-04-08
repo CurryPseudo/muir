@@ -8,48 +8,52 @@ public class GopherViewController : MonoBehaviourHasDestroyEvent {
 	#endregion
 	#region Inspector
 		public MovementFsm movementFsm;
+		public GopherController player;
 		public Animator view;
 		public Animator ghostView;
 	#endregion
 	#region Monobehaviour Methods
         void Awake() {
-			movementFsm.AddEnterEvent<MovementFsm.OnGroundStateWithEvent>(() => {
+			player.AddEnterEventBeforeEnter<GopherController.SecondJumpState>(() => {
+				view.SetTrigger("ReJump");
+			}, this);
+			movementFsm.AddEnterEventBeforeEnter<MovementFsm.OnGroundState>(() => {
 				view.SetBool("OnGround", true);
-			}, swe => swe.enterEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.OnGroundStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeExit<MovementFsm.OnGroundState>(() => {
 				view.SetBool("OnGround", false);
-			}, swe => swe.exitEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.InGroundStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeEnter<MovementFsm.InGroundState>(() => {
 				view.SetBool("Digging", true);
-			}, swe => swe.enterEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.InGroundStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeExit<MovementFsm.InGroundState>(() => {
 				view.SetBool("Digging", false);
-			}, swe => swe.exitEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.InGroundStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeExcute<MovementFsm.InGroundState>(() => {
 				Vector2 direction = movementFsm.Velocity.normalized;
 				float angle = Vector2.Angle(Vector2.right, direction);
 				if(direction.y < 0) {
 					angle = 360 - angle;
 				}
 				view.gameObject.transform.rotation = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1));
-			}, swe => swe.excuteEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.InGroundStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeExit<MovementFsm.InGroundState>(() => {
 				view.gameObject.transform.rotation = Quaternion.identity;
-			}, swe => swe.exitEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.DeadStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeEnter<MovementFsm.DeadState>(() => {
 				view.SetTrigger("Die");
-			}, swe => swe.enterEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.DeadStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeEnter<MovementFsm.DeadState>(() => {
 				ghostView.gameObject.transform.parent.SetParent(null, true);
 				ghostView.SetTrigger("Die");
-			}, swe => swe.enterEventMap, this);
-			movementFsm.AddEnterEvent<MovementFsm.DeadStateWithEvent>(() => {
+			}, this);
+			movementFsm.AddEnterEventBeforeExcute<MovementFsm.DeadState>(() => {
 				if(movementFsm.Velocity.x > 0) {
 					Vector3 scale = view.transform.localScale;
 					scale.x = Mathf.Abs(scale.x) * -1;
 					view.transform.localScale = scale;
 				}
-			}, swe => swe.excuteEventMap, this);
+			}, this);
 			
         }
 		void Update() {

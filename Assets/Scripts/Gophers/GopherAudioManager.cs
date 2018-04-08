@@ -72,11 +72,11 @@ public class GopherAudioManager : MonoBehaviourHasDestroyEvent {
 	#endregion
 	#region Monobehaviour Methods
     private void Awake() {
-        movementFsm.AddEnterEvent<MovementFsm.OnGroundStateWithEvent>(PlayPaces, swe => swe.excuteEventMap, this);
-        movementFsm.AddEnterEvent<MovementFsm.OnGroundStateWithEvent>(PlayLand, swe => swe.enterEventMap, this);
-        movementFsm.AddEnterEvent<MovementFsm.OnGroundStateWithEvent>(StopPace, swe => swe.exitEventMap, this);
-        movementFsm.AddEnterEvent<MovementFsm.DeadStateWithEvent>(PlayDead, swe => swe.enterEventMap, this);
-        movementFsm.AddEnterEvent<MovementFsm.InAirStateWithEvent>(PlayJump, swe => swe.enterEventMap, this);
+        movementFsm.AddEnterEventBeforeExcute<MovementFsm.OnGroundState>(PlayPaces, this);
+        movementFsm.AddEnterEventBeforeEnter<MovementFsm.OnGroundState>(PlayLand, this);
+        movementFsm.AddEnterEventBeforeExit<MovementFsm.OnGroundState>(StopPace, this);
+        movementFsm.AddEnterEventBeforeEnter<MovementFsm.DeadState>(PlayDead, this);
+        movementFsm.AddEnterEventBeforeEnter<MovementFsm.InAirState>(PlayJump, this);
         Debug.Assert(dieVoices.Count == voiceRandomValue.Count - 1);
 
     }

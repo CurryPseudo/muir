@@ -10,7 +10,9 @@ public class MonoBehaviourHasDestroyEvent : MonoBehaviour {
 	#endregion
 	#region Monobehaviour Methods
     protected void OnDestroy() {
-        onDestroy?.Invoke();
+		if(onDestroy != null) {
+			onDestroy.Invoke();
+		}
     }
 	#endregion
 	#region Private Methods And Fields

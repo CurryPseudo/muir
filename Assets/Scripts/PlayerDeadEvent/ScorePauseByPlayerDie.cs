@@ -22,7 +22,7 @@ public class ScorePauseByPlayerDie : MonoBehaviourHasDestroyEvent {
 	#endregion
 	#region Monobehaviour Methods
     void Awake() {
-        MovementFsm.DeadStateWithEvent.Instance.enterEventMap.AddEnterEvent(player, PauseScore, this);
+        player.AddEnterEventBeforeEnter<MovementFsm.DeadState>(PauseScore, this);
     }
 	#endregion
 	#region Public Method

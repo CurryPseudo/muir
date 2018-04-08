@@ -21,7 +21,7 @@ public class ShakeScreenByPlayerDie : MonoBehaviourHasDestroyEvent {
 	#endregion
 	#region Monobehaviour Methods
     void Awake() {
-        MovementFsm.DeadStateWithEvent.Instance.enterEventMap.AddEnterEvent(player, ShakeScreen, this);
+        player.AddEnterEventBeforeEnter<MovementFsm.DeadState>(ShakeScreen, this);
     }
 	#endregion
 	#region Public Method

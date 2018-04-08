@@ -3084,7 +3084,6 @@ GameObject:
   - component: {fileID: 1163877488}
   - component: {fileID: 1155253561}
   - component: {fileID: 1155253560}
-  - component: {fileID: 1155253559}
   m_Layer: 0
   m_Name: Gopher
   m_TagString: Untagged
@@ -3092,20 +3091,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1155253559
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 114942024412943220, guid: 0cb39e750b6e648e68f9874ae013ab71,
-    type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1155253558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82e5d12162ed4374da5db11e9a8f07d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 1155253561}
-  movement: {fileID: 1163877488}
 --- !u!114 &1155253560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3119,6 +3104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementFsm: {fileID: 1163877488}
+  player: {fileID: 1155253561}
   view: {fileID: 720406483}
   ghostView: {fileID: 705665233}
 --- !u!114 &1155253561
@@ -3138,6 +3124,11 @@ MonoBehaviour:
   yDiggingForce: 28.15
   xSpeed: 3.89
   yJumpSpeed: 4.695747
+  firstJumpSpeed: 3.34
+  firstJumpMaxHeight: 0.82
+  secondJumpSpeed: 3.34
+  secondJumpMaxHeight: 0.8
+  maxSumHeight: 1.24
   deadLayers:
     serializedVersion: 2
     m_Bits: 512

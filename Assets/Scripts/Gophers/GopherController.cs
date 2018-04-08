@@ -12,6 +12,14 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 	[Header("Speed")]
 	public float xSpeed = 3;
 	public float yJumpSpeed = 4;
+	[Header("First Jump")]
+	public float firstJumpSpeed = 2;
+	public float firstJumpMaxHeight = 4;
+	[Header("Second Jump")]
+	public float secondJumpSpeed = 1.3f;
+	public float secondJumpMaxHeight = 3;
+	[Header("Jump Ultility")]
+	public float maxSumHeight = 5;
 	[Header("Layer Mask")]
 	public LayerMask deadLayers;
 	public LayerMask bottomLayers;
@@ -24,12 +32,16 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 	#region MonoBehaviour Methods
 		void Awake()
 		{
-			ChangeState<NormalState>();
+			ChangeState<RunningState>(null);
+			movementFsm.AddEnterEventBeforeEnter<MovementFsm.OnGroundState>(()=>ChangeState<RunningState>(null));
 		}
 		void Start () {
 		}
 		protected override void FixedUpdateAfterFSMUpdate() {
 			
+		}
+		void OnDestroy() {
+			movementFsm.RemoveEnterEventBeforeEnter<MovementFsm.OnGroundState>(()=>ChangeState<RunningState>(null));
 		}
 		void OnDestroyWithEvent() {
 		}
@@ -39,9 +51,9 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		private void HitGroundAndDie(List<BoxRayCaster.RayTrigger> hitTrigger) {
 			if(hitTrigger.Count == 0) return;
 			movementFsm.DieTriggers = hitTrigger;
-			movementFsm.ChangeState<MovementFsm.DeadStateWithEvent>();
+			movementFsm.ChangeStateSingleton<MovementFsm.DeadStateWithEvent>();
 			Timer.BeginATimer(2, () => {SceneManager.LoadScene(0);}, this);
-			ChangeState<DeadState>();
+			ChangeStateSingleton<DeadState>();
 		}
 		*/
 		private bool HitGroundAndDie(IEnumerable<RaycastHit2D> hits) {
@@ -54,7 +66,7 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 				return false;
 			}
 			movementFsm.DieHits = new List<RaycastHit2D>(hits);
-			movementFsm.ChangeState<MovementFsm.DeadStateWithEvent>();
+			movementFsm.ChangeState<MovementFsm.DeadState>();
 			Timer.BeginATimer(2, LoadDeadScene, this);
 			ChangeState<DeadState>();
 			return true;
@@ -70,9 +82,9 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 
 	#endregion
     #region States
-    public class NormalState : StateSingleton<NormalState>
+    public class RunningState : StateNormal<RunningState>
     {
-		float mouseDownTime = 0;
+		public bool upJumpButton = false;
 		public override void OnEnterWithEvent(GopherController fsm){
 			fsm.movementFsm.Velocity = new Vector2(fsm.xSpeed, fsm.movementFsm.Velocity.y);
 		}
@@ -81,25 +93,21 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
 				return;
 			}
-			if(fsm.movementFsm.current.ToString() == "OnGround") {
-				if(Input.GetMouseButton(0)){
-					mouseDownTime += Time.fixedDeltaTime;
-				}
-				if(mouseDownTime > fsm.holdMouseTime) {
-					fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, -fsm.movementFsm.yMaxSpeedInGroundDown);
-					fsm.movementFsm.ChangeState<MovementFsm.InGroundStateWithEvent>();
-					fsm.ChangeState<DiggingState>();
-					mouseDownTime = 0;
+			if(InputHandler.Input.GetDigButton()) {
+				fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, -fsm.movementFsm.yMaxSpeedInGroundDown);
+				fsm.movementFsm.ChangeState<MovementFsm.InGroundState>();
+				fsm.ChangeState<DiggingState>();
+				return;
+			}
+			if(InputHandler.Input.GetJumpButton()){
+				if(upJumpButton) {
+					fsm.ChangeState<FirstJumpState>(null);
 					return;
 				}
-				if(Input.GetMouseButtonUp(0)){
-					mouseDownTime = 0;
-					fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, fsm.yJumpSpeed);
-				}
 			}
-			
-			
-			
+			else {
+				upJumpButton = true;
+			}
 		}
 		public override void OnExitWithEvent(GopherController fsm) {
 
@@ -108,15 +116,104 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			return "Normal";
 		}	
     }
-	public class DiggingState : StateSingleton<DiggingState> {
+    public class FirstJumpState : StateNormal<FirstJumpState>
+    {
+
+		float originY = 0;
+		bool upJumpButton = false;
+		bool firstJumpChance = true;
+		GopherController _fsm;
+		private float Height {
+			get {
+				return _fsm.movementFsm.Position.y - originY;
+			}
+		}
 		public override void OnEnterWithEvent(GopherController fsm) {
-			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.AddEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState<NormalState>());
+			originY = fsm.transform.position.y;
+			_fsm = fsm;
+			fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, fsm.firstJumpSpeed);
 		}
 		public override void OnExcuteWithEvent(GopherController fsm) {
 			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
 				return;
 			}
-			if(Input.GetMouseButton(0)) {
+			if(InputHandler.Input.GetJumpButton()) {
+				if(!upJumpButton && firstJumpChance) {
+					if(_fsm.movementFsm.GetJumpHeight(fsm.firstJumpSpeed) + Height > fsm.firstJumpMaxHeight) {
+						firstJumpChance = false;
+					} else {
+						_fsm.movementFsm.Velocity = new Vector2(_fsm.movementFsm.Velocity.x, fsm.firstJumpSpeed);
+					}
+				}
+				else if(upJumpButton == true && fsm.movementFsm.Velocity.y <= 0) {
+					fsm.ChangeState<SecondJumpState>(new SecondJumpState(originY));
+				}
+			}
+			else {
+				upJumpButton = true;
+			}
+		}
+        public override string GetStateName()
+        {
+			return "FirstJump";
+        }
+    }
+    public class SecondJumpState : StateNormal<SecondJumpState>
+    {
+		float originY = 0;
+		float firstOriginY = 0;
+		bool upJumpButton = false;
+		GopherController _fsm;
+		private float Height {
+			get {
+				return _fsm.movementFsm.Position.y - originY;
+			}
+		}
+		private float firstJumpHeight {
+			get {
+				return _fsm.movementFsm.Position.y - firstOriginY;
+			}
+		}
+		public SecondJumpState(float firstOriginY) {
+			this.firstOriginY = firstOriginY;
+		}
+		public SecondJumpState() {}
+		public override void OnEnterWithEvent(GopherController fsm) {
+			originY = fsm.movementFsm.Position.y;
+			_fsm = fsm;
+			fsm.movementFsm.Velocity = new Vector2(fsm.movementFsm.Velocity.x, fsm.secondJumpSpeed);
+		}
+		public override void OnExcuteWithEvent(GopherController fsm) {
+			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
+				return;
+			}
+			if(InputHandler.Input.GetJumpButton()) {
+				if(!upJumpButton) {
+					if(_fsm.movementFsm.GetJumpHeight(fsm.secondJumpSpeed)> Mathf.Min(fsm.secondJumpMaxHeight - Height, fsm.maxSumHeight - firstJumpHeight)) {
+						upJumpButton = true;
+					} else {
+						_fsm.movementFsm.Velocity = new Vector2(_fsm.movementFsm.Velocity.x, fsm.secondJumpSpeed);
+					}
+				}
+			}
+			else {
+				upJumpButton = true;
+			}
+		}
+        public override string GetStateName()
+        {
+			return "SecondJump";
+        }
+    }
+    public class DiggingState : StateSingleton<DiggingState> {
+		public override void OnEnterWithEvent(GopherController fsm) {
+			fsm.movementFsm.AddEnterEventBeforeExit<MovementFsm.InGroundState>(()=>fsm.ChangeState<FirstJumpState>(null));
+		}
+		public override void OnExcuteWithEvent(GopherController fsm) {
+			if(fsm.HitGroundAndDie(fsm.diggingBoxRayCaster.CheckCollisionHit(fsm.deadLayers))) {
+				return;
+			}
+			if(InputHandler.Input.GetDigButton()) {
 				fsm.movementFsm.Velocity = fsm.movementFsm.Velocity + Vector2.down * fsm.yDiggingForce * fsm.movementFsm.UpdateTime;
 			}
 			var bottomResult = new List<BoxRayCaster.RayTrigger>(fsm.onGroundBoxRayCaster.CheckCollision(fsm.bottomLayers));
@@ -131,7 +228,7 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			fsm.diggingBoxRayCaster.gameObject.transform.rotation = Quaternion.AngleAxis(angle, new Vector3(0, 0, 1));
 		}
 		public override void OnExitWithEvent(GopherController fsm) {
-			MovementFsm.InGroundStateWithEvent.Instance.exitEventMap.RemoveEnterEvent(fsm.movementFsm, ()=>fsm.ChangeState<NormalState>());
+			fsm.movementFsm.RemoveEnterEventBeforeExit<MovementFsm.InGroundState>(()=>fsm.ChangeState<FirstJumpState>(null));
 		}
 		public override string GetStateName() {
 			return "Digging";

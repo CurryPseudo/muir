@@ -11,7 +11,7 @@ public class DisableMonoBehaviourByPlayerDie : MonoBehaviourHasDestroyEvent {
 	#endregion
 	#region Monobehaviour Methods
 		void Start() {
-			MovementFsm.DeadStateWithEvent.Instance.enterEventMap.AddEnterEvent(movementFsm, ()=> {disableMonoBehaviour.enabled = false;}, this);
+			movementFsm.AddEnterEventBeforeEnter<MovementFsm.DeadState>(()=> {disableMonoBehaviour.enabled = false;}, this);
 		}
 	#endregion
 	#region Private Methods And Fields

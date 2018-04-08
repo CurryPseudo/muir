@@ -75,6 +75,7 @@ public class SequenceSpriteGenerator : MonoBehaviour {
 			goList.Remove(go);
 		}
 	}
+	#if UNITY_EDITOR
 	[ButtonGroup("序列精灵")]
 	[Button("选中所有")]
 	private void selectAll() {
@@ -84,5 +85,6 @@ public class SequenceSpriteGenerator : MonoBehaviour {
 		}
 		Selection.objects = selectObjects;
 	}
+	#endif
 }
 }

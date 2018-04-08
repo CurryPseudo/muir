@@ -22,7 +22,9 @@ public class InputHandler : Singleton<InputHandler>
 public interface IMuirInput {
     RuntimePlatform[] GetPlatforms();
     bool GetJumpButton();
+    bool GetJumpButtonDown();
     bool GetDigButton();
+    bool GetDigButtonDown();
 }
 public class PcInput : IMuirInput
 {
@@ -31,9 +33,19 @@ public class PcInput : IMuirInput
         return Input.GetButton("Dig");
     }
 
+    bool IMuirInput.GetDigButtonDown()
+    {
+        return Input.GetButtonDown("Dig");
+    }
+
     bool IMuirInput.GetJumpButton()
     {
         return Input.GetButton("Jump");
+    }
+
+    bool IMuirInput.GetJumpButtonDown()
+    {
+        return Input.GetButtonDown("Jump");
     }
 
     RuntimePlatform[] IMuirInput.GetPlatforms()

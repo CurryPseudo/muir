@@ -37,7 +37,10 @@ public class CameraFollow : CouldDisableEditorUpdateMonoBehaviour{
 			newPosition.z = cameraPosition.z;
 		}
 		cameraPosition = newPosition;
-		Vector3? afterPosition = effect?.Invoke(newPosition);
+		Vector3? afterPosition = null;
+		if(effect != null) {
+			afterPosition = effect.Invoke(newPosition);
+		}
 		if(afterPosition.HasValue) {
 			newPosition = afterPosition.Value;
 		}
