@@ -29,20 +29,23 @@ public class ScreenShake : MonoBehaviour {
     }
 	#endregion	
 	#region Inspector
-    public CameraFollow follow;
+    public new Transform camera;
     public Vector2 shakeRange;
     public float shakeSpeed;
     public bool shake;
 	#endregion
 	#region Monobehaviour Methods
     void Awake() {
-        follow = GetComponent<CameraFollow>();
-        follow.effect += shakeCameraPos;
+        camera = transform;
     }
 
     void Update() {
         if(shake && !lastShakeStatus) {
             shakeValue = Random.Range(0,10);
+            originPosition = camera.position;
+        }
+        if(shake) {
+            camera.position = shakeCameraPos(originPosition);
         }
         lastShakeStatus = shake;
         shakeValue += Time.deltaTime * shakeSpeed;

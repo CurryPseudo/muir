@@ -2,13 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PseudoTools;
 
-public class ShakeScreenByPlayerDie : MonoBehaviourHasDestroyEvent {
+
+[ReceiveEvent("PlayerDie")]
+public class ShakeScreenByPlayerDie : ObserverMonoBehaviour{
 	#region Properties
 	#endregion
 	#region Private Methods And Fields
-    private void ShakeScreen() {
-        follow.lockX = false;
+    private void ReceivePlayerDie() {
         shake.shake = true;
         Timer.BeginATimer(shakeTime, ()=> {shake.shake = false;}, this);
     }
@@ -16,12 +18,10 @@ public class ShakeScreenByPlayerDie : MonoBehaviourHasDestroyEvent {
 	#region Inspector
     public float shakeTime = 1.5f;
     public ScreenShake shake;
-    public MovementFsm player;
-    public CameraFollow follow;
 	#endregion
 	#region Monobehaviour Methods
     void Awake() {
-        player.AddEnterEventBeforeEnter<MovementFsm.DeadState>(ShakeScreen, this);
+        shake = GetComponent<ScreenShake>();
     }
 	#endregion
 	#region Public Method

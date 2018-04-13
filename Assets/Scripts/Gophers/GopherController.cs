@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using PseudoTools;
 public class GopherController : FiniteStateMachineMonobehaviour<GopherController>{
 
 	#region private fields
@@ -67,19 +68,10 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 			}
 			movementFsm.DieHits = new List<RaycastHit2D>(hits);
 			movementFsm.ChangeState<MovementFsm.DeadState>();
-			Timer.BeginATimer(2, LoadDeadScene, this);
+			//Timer.BeginATimer(2, LoadDeadScene, this);
 			ChangeState<DeadState>();
 			return true;
 		}
-		private void LoadDeadScene() {
-			if(GameStatus.Now != null) {
-				GameStatus.Now.deadInterface = true;
-				SceneManager.LoadSceneAsync("Home");
-			}else {
-				SceneManager.LoadSceneAsync("MainScene");
-			}
-		}
-
 	#endregion
     #region States
     public class RunningState : StateNormal<RunningState>
@@ -235,6 +227,9 @@ public class GopherController : FiniteStateMachineMonobehaviour<GopherController
 		}
 	}
 	public class DeadState : StateSingleton<DeadState> {
+		public override void OnEnterWithEvent(GopherController fsm) {
+			EventBus.Notify("PlayerDie");
+		}
 		public override string GetStateName() {
 			return "Dead";
 		}

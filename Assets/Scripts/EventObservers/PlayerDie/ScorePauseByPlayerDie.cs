@@ -1,13 +1,14 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PseudoTools;
 
-public class ScorePauseByPlayerDie : MonoBehaviourHasDestroyEvent {
+[ReceiveEvent("PlayerDie")]
+public class ScorePauseByPlayerDie : ObserverMonoBehaviour{
 	#region Properties
 	#endregion
 	#region Private Methods And Fields
-    void PauseScore() {
+    private void ReceivePlayerDie() {
         if(GameStatus.Now != null) {
             GameStatus.Now.RecentScore = score.score;
         }
@@ -17,14 +18,21 @@ public class ScorePauseByPlayerDie : MonoBehaviourHasDestroyEvent {
     }
 	#endregion	
 	#region Inspector
-    public MovementFsm player;
     public ScoreRecording score;
 	#endregion
 	#region Monobehaviour Methods
     void Awake() {
-        player.AddEnterEventBeforeEnter<MovementFsm.DeadState>(PauseScore, this);
+        score = GetComponent<ScoreRecording>();
     }
-	#endregion
-	#region Public Method
-	#endregion
+
+    public override void _OnEnable()
+    {
+    }
+
+    public override void _OnDisable()
+    {
+    }
+    #endregion
+    #region Public Method
+    #endregion
 }
