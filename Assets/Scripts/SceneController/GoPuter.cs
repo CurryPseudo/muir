@@ -16,12 +16,12 @@ namespace SceneController {
         public Transform baseTransform;
         public Vector2 PosDisDir{
             get{
-                return VectorUltility.V32(baseTransform.position) + positiveDirection * positiveDistance;
+                return VectorUtility.V32(baseTransform.position) + positiveDirection * positiveDistance;
             }
         }
         public Vector2 NegDisDir{
             get{
-                return VectorUltility.V32(baseTransform.position) - positiveDirection * negativeDistance;
+                return VectorUtility.V32(baseTransform.position) - positiveDirection * negativeDistance;
             }
         }
         private bool validTransform(Transform t) {
@@ -65,12 +65,12 @@ namespace SceneController {
                 }
             };
             Action<Func<PutableGo,Vector2>,Vector2,Func<Vector2,Vector2,bool>> deleteToRange = (GetPoint, disDir, Comp)=>{
-                ListUltility.DoIf(pgList, (pg => !Comp(GetPoint(pg), disDir)), (pg)=>{
+                ListUtility.DoIf(pgList, (pg => !Comp(GetPoint(pg), disDir)), (pg)=>{
                     DestroyImmediate(pg.gameObject);
                 });
-                ListUltility.DeleteIf(pgList, (pg => pg == null));
+                ListUtility.DeleteIf(pgList, (pg => pg == null));
             };
-            ListUltility.DeleteIf(pgList, (pg => pg == null));
+            ListUtility.DeleteIf(pgList, (pg => pg == null));
             if(pgList.Count == 0) {
                 CreateDefaultPG();
             }
@@ -78,7 +78,7 @@ namespace SceneController {
             extandToRange(GetPositivePoint,(pg => pg.PutPositiveBy), Positiver, PosDisDir);
             deleteToRange(GetPositivePoint, NegDisDir, Positiver);
             deleteToRange(GetNegativePoint, PosDisDir, Negativer);
-            ListUltility.DeleteIf(pgList, (pg => pg == null));
+            ListUtility.DeleteIf(pgList, (pg => pg == null));
         }
         private PutableGo NormDir(PutableGo go) {
             if(Positiver(go.NegativePointWorld, go.PositivePointWorld)) {
@@ -102,8 +102,8 @@ namespace SceneController {
             var gp = go.AddComponent<PutableGo>();
             
             float littleOffset = 0.1f;
-            gp.PositivePointWorld = VectorUltility.V32(baseTransform.position) + positiveDirection * littleOffset;
-            gp.NegativePointWorld = VectorUltility.V32(baseTransform.position) - positiveDirection * littleOffset;
+            gp.PositivePointWorld = VectorUtility.V32(baseTransform.position) + positiveDirection * littleOffset;
+            gp.NegativePointWorld = VectorUtility.V32(baseTransform.position) - positiveDirection * littleOffset;
 
             go.transform.SetParent(transform, true);
             pgList.Add(gp);

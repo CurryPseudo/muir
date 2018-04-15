@@ -1,6 +1,6 @@
 using UnityEngine;
 namespace PseudoTools{
-    public class VectorUltility{
+    public class VectorUtility{
         public static Vector2 V32(Vector3 v3) {
             return new Vector2(v3.x, v3.y);
         }

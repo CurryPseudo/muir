@@ -30,7 +30,7 @@ namespace SceneController{
             SetPoint((v2 => putableGo.NegativePointWorld = v2));
         }
         public void SetPoint(Action<Vector2> f) {
-            f(SubSpriteUltility.GetSubSpritesPoint(xDirection, yDirection, gameObject));
+            f(SubSpriteUtility.GetSubSpritesPoint(xDirection, yDirection, gameObject));
         }  
 
     }   

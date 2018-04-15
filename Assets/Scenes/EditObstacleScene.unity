@@ -1292,10 +1292,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab4df0077ae8e433ca53ccc72a76199a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  savePath: 
-  name: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: savePath
+      Entry: 6
+      Data: 
+  info:
+    levelPartName: 
+    difficulty: 0
   length: 0
-  difficulty: 0
 --- !u!1 &354641456
 GameObject:
   m_ObjectHideFlags: 0

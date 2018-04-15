@@ -2,7 +2,7 @@ using UnityEngine;
 using PseudoTools;
 using System;
 namespace PseudoTools {
-    public class SubSpriteUltility {
+    public class SubSpriteUtility {
         public static Vector2 GetSubSpritesPoint(DirectionSign xDirection, DirectionSign yDirection, GameObject go) {
             Vector2 resultPoint;
 

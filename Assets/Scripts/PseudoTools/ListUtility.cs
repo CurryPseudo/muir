@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System;
 namespace PseudoTools {
-    public class ListUltility {
+    public class ListUtility {
         public static void DeleteIf<T>(List<T> list, Func<T,bool> removeCondition) {
             List<T> deleteList = new List<T>();
             foreach(var t in list) {

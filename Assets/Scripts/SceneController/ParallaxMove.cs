@@ -16,7 +16,7 @@ namespace SceneController {
             lastPosition = baseTransform.position;
         }
         public override void _Update() {
-            transform.position = transform.position + VectorUltility.Multiply((baseTransform.position - lastPosition), VectorUltility.V23(degrees));
+            transform.position = transform.position + VectorUtility.Multiply((baseTransform.position - lastPosition), VectorUtility.V23(degrees));
             lastPosition = baseTransform.position;
         }
         [TabGroup("通过某Go的子精灵来设置Degrees")]
@@ -29,7 +29,7 @@ namespace SceneController {
         public void SetDegrees() {
             if(targetGo != null) {
                 Func<GameObject, Func<DirectionSign,DirectionSign>, Vector2> getPoint = (go, Fd) => {
-                    return SubSpriteUltility.GetSubSpritesPoint(Fd(xDirection), Fd(yDirection), go);
+                    return SubSpriteUtility.GetSubSpritesPoint(Fd(xDirection), Fd(yDirection), go);
                 };
 
                 Func<DirectionSign, DirectionSign> reverseDir = (d) => {

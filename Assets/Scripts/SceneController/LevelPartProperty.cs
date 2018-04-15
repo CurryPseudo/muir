@@ -11,11 +11,19 @@ namespace SceneController {
         [ReadOnly]
         public IPath savePath;
         [LabelText("信息")]
+        [HideLabel]
+        [InlineProperty]
         public LevelPartInfo info;
         [LabelText("长度")]
         public float length;
-        public void setSavePath(IPath savePath) {
+        public void SetSavePath(IPath savePath) {
             this.savePath = savePath;
+        }
+        public static void LevelPartsExistError(IPath path, string name) {
+            var finalPath = path.getPath() + name + ".prefab";
+            if(AssetDatabase.LoadAssetAtPath<GameObject>(finalPath)) {
+                throw new Exception("已存在同名的其他关卡片段");
+            }
         }
         [InfoBox("没有已有关卡片段，保存将会新建一个片段。", "PrefabNotExist")]
         [InfoBox("有已存在关卡，保存将会更新", "PrefabExist")]
@@ -25,15 +33,13 @@ namespace SceneController {
                 throw new Exception("Save path cant be null");
             }
             var finalPath = savePath.getPath() + info.levelPartName + ".prefab";
-            if(AssetDatabase.LoadAssetAtPath<GameObject>(finalPath)) {
-                throw new Exception("已存在同名的其他关卡片段");
-            }
+            LevelPartsExistError(savePath, info.levelPartName);
             var tempPath = savePath.getPath() + info + "Temp233.prefab";
             var newPrefab = PrefabUtility.CreatePrefab(tempPath, gameObject);
             if(PrefabExist()) {
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(relatePrefab));
             }
-            AssetDatabase.RenameAsset(tempPath, finalPath);
+            AssetDatabase.RenameAsset(tempPath, info.levelPartName + ".prefab");
             relatePrefab = newPrefab;
         }
         public bool PrefabExist() {
